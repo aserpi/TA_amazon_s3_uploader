@@ -15,7 +15,7 @@
                                 "field": "name"
                             },
                             {
-                                "label": "AWS access key id",
+                                "label": "AWS access key ID",
                                 "field": "aws_key_id"
                             }
                         ]
@@ -44,7 +44,7 @@
                         },
                         {
                             "type": "text",
-                            "label": "AWS access key id",
+                            "label": "AWS access key ID",
                             "required": true,
                             "validators": [
                                 {
@@ -106,11 +106,11 @@
                                 "disableSearch": true,
                                 "autoCompleteFields": [
                                     {
-                                        "label": "http",
+                                        "label": "HTTP",
                                         "value": "http"
                                     },
                                     {
-                                        "label": "https",
+                                        "label": "HTTPS",
                                         "value": "https"
                                     }
                                 ]
@@ -255,7 +255,7 @@
         "displayName": "Amazon S3 Uploader for Splunk",
         "name": "TA_aws_s3_uploader",
         "restRoot": "TA_aws_s3_uploader",
-        "version": "0.0.1",
+        "version": "0.2.0",
         "schemaVersion": "0.0.3"
     }
 }
