@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags: v*.*.*
+
+env:
+  app_id: ${{ github.event.repository.name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.7"
+      - name: Install dependencies
+        run: |
+          python -m pip install --no-cache-dir --upgrade pip
+          python -m pip install --no-cache-dir wheel
+          if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+      - name: Extract version
+        uses: actions-ecosystem/action-regex-match@v2
+        id: get-version
+        with:
+          regex: '^v((?:\d+)\.(?:\d+)\.(?:\d+)(-[0-9A-Za-z-]+)?)(\+[0-9A-Za-z-]+)?$'
+          text: ${{ github.ref_name }}
+      - name: Build
+        run: ucc-gen --ta-version ${{ steps.get-version.outputs.group1 }}
+      - name: Fix permissions
+        run: |
+          find output/${{ env.app_id }} -type d -exec chmod 755 -- {} +
+          find output/${{ env.app_id }} -type f -exec chmod 644 -- {} +
+      - name: Package
+        run: slim package output/${{ env.app_id }}
+      - name: Extract changelog
+        id: get-changelog
+        run: |
+          echo 'CHANGELOG<<CHANGELOG_EOF' >> $GITHUB_ENV
+          cat CHANGELOG.md | sed '1,/## ${{ steps.get-version.outputs.group1 }}/d;/## /,$d' | awk '
+              /[[:graph:]]/ {
+                  p=1  # A non-empty line: set the flag to begin printing lines  
+                  for (i=1; i<=n; i++) print ""  # Print the accumulated inner empty lines 
+                  n=0
+                  print  # Print the current line
+              }
+              p && /^[[:space:]]*$/ {
+                  n++  # A potentially inner empty line: remember it
+              }
+          ' >> $GITHUB_ENV
+          echo 'CHANGELOG_EOF' >> $GITHUB_ENV
+      - name: Release
+        uses: softprops/action-gh-release@v0.1.14
+        with:
+          body: ${{ env.CHANGELOG }}
+          fail_on_unmatched_files: true
+          files: ${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
+          prerelease: ${{ steps.get-version.outputs.group2 != '' }}
+          token: ${{ secrets.RELEASE_TOKEN }}
