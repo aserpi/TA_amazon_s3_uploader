@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="300"
+   height="300"
+   viewBox="0 0 300 300"
+   version="1.1"
+   id="svg17"
+   sodipodi:docname="appIcon.svg"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   inkscape:export-filename="C:\Users\aless\Downloads\appIcon.png"
+   inkscape:export-xdpi="11.52"
+   inkscape:export-ydpi="11.52"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview19"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="-213.54625"
+     inkscape:cy="55.861436"
+     inkscape:window-width="1920"
+     inkscape:window-height="991"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg17"
+     scale-x="1"
+     units="mm" />
+  <title
+     id="title2">Icon-Architecture/64/Arch_Amazon-Simple-Storage-Service_64</title>
+  <defs
+     id="defs9">
+    <linearGradient
+       x1="0"
+       y1="1"
+       x2="1"
+       y2="0"
+       id="linearGradient-1">
+      <stop
+         stop-color="#1B660F"
+         offset="0%"
+         id="stop4" />
+      <stop
+         stop-color="#6CAE3E"
+         offset="100%"
+         id="stop6" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient-1"
+       id="linearGradient509"
+       x1="0"
+       y1="80"
+       x2="80"
+       y2="0"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient-1"
+       id="linearGradient511"
+       x1="0"
+       y1="80"
+       x2="80"
+       y2="0"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     id="Icon-Architecture/64/Arch_Amazon-Simple-Storage-Service_64"
+     stroke="none"
+     stroke-width="1"
+     fill="none"
+     fill-rule="evenodd"
+     transform="scale(3.75)">
+    <g
+       id="Rectangle"
+       fill="url(#linearGradient-1)"
+       style="fill:url(#linearGradient511)">
+      <rect
+         x="0"
+         y="0"
+         width="80"
+         height="80"
+         id="rect11"
+         style="fill:url(#linearGradient509)" />
+    </g>
+    <g
+       id="Icon-Service/64/Amazon-Simple-Storage-Service_64"
+       transform="matrix(0.4125,0,0,0.4125,44.711713,10.935731)"
+       fill="#ffffff">
+      <path
+         d="m 53.7109,35.11135 0.384,-2.92275 c 3.541,2.121 3.587,2.997 3.586013,3.021 -0.006,0.005 -0.610013,0.72775 -3.970013,-0.09825 z m -3.645665,-1.068109 c -6.12,-1.852 -15.62515,-4.46609 -15.62515,-4.46609 l -1.939832,2.277571 17.136677,4.995436 -2.254882,16.334792 c -0.007,0.047 -0.01,0.094 -0.01,0.141 C 47.372048,54.84095 41.4529,57 30.4939,57 19.4189,57 13.551156,54.474412 13.551156,52.959412 c -0.01519,-0.269852 0.02408,0.195516 -0.0138,-0.07973 L 8.708,17.88 c 4.409,3.035 12.7219,4.12 21.7919,4.12 9.056,0 17.695335,-1.094 22.113335,-4.12 z M 8,12.4776 C 8.072,11.1616 14.6339,7 30.4999,7 c 15.864,0 22.341162,4.875225 22.414162,6.192225 v 0 C 52.044063,16.143225 43.3299,18 30.4999,18 17.6479,18 8.843,15.8676 8,12.9126 Z m 49,0.022 C 57,9.0346 46.0659,3 30.4999,3 14.9339,3 4,9.0346 4,12.4996 l 0.094,0.754 5.548,40.1354 c 0.133,4.532 13.2189,7.222 20.8519,7.222 9.472,0 20.5351,-2.7894 20.6651,-6.8304 l 2.182512,-16.170017 c 1.333,0.319 2.43,0.26325 3.311,0.26325 1.183,0 2.336554,-0.289 2.821554,-0.867 0.663625,-0.50525 0.806472,-1.717385 0.489347,-2.422135 -0.712125,-1.29025 -2.254444,-2.872208 -5.522319,-4.890583 L 56.898,13.2926 Z"
+         id="Amazon-Simple-Storage-Service-Icon_64_Squid-2"
+         sodipodi:nodetypes="cccccccccsscccscccsccscccscccsccsccccc" />
+    </g>
+    <path
+       d="M 61.03312,22.808698"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.33"
+       id="path1981" />
+    <circle
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.423097"
+       id="path4208"
+       cx="57.728115"
+       cy="23.335348"
+       r="1.546875" />
+    <path
+       d="m 33.707,46.707 c 0.391,-0.391 0.391,-1.023 0,-1.414 l -12,-12 -1.414,1.414 L 31.586,46 20.293,57.293 21.707,58.707 Z M 34,58 H 54 V 56 H 34 Z m 34,8 V 40 H 66 V 66 H 14 V 14 H 40.375 V 12 H 14 c -1.103,0 -2,0.897 -2,2 v 52 c 0,1.103 0.897,2 2,2 h 52 c 1.103,0 2,-0.897 2,-2 z"
+       id="path861"
+       style="fill:#ffffff"
+       sodipodi:nodetypes="sscccccscccccscccccccssssss" />
+  </g>
+  <metadata
+     id="metadata2038">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Icon-Architecture/64/Arch_Amazon-Simple-Storage-Service_64</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+</svg>
