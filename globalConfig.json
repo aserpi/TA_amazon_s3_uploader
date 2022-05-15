@@ -252,7 +252,7 @@
         }
     ],
     "meta": {
-        "displayName": "Upload to AWS S3",
+        "displayName": "Amazon S3 Uploader for Splunk",
         "name": "TA_aws_s3_uploader",
         "restRoot": "TA_aws_s3_uploader",
         "version": "0.0.1",

@@ -1,1 +1,1 @@
-# TA_aws_uploader
+# Amazon S3 Uploader for Splunk

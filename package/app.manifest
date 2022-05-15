@@ -21,7 +21,7 @@
             "name": "MIT License",
             "text": "./LICENSE.md"
         },
-        "title": "AWS S3 uploader"
+        "title": "Amazon S3 Uploader for Splunk"
     },
     "schemaVersion": "2.0.0",
     "supportedDeployments": [
