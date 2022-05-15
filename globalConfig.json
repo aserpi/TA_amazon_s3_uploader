@@ -268,7 +268,7 @@
         "displayName": "Amazon S3 Uploader for Splunk",
         "name": "TA_aws_s3_uploader",
         "restRoot": "TA_aws_s3_uploader",
-        "version": "0.2.0",
+        "version": "1.0.0",
         "schemaVersion": "0.0.3"
     }
 }

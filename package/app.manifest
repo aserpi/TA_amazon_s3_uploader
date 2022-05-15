@@ -2,18 +2,17 @@
     "info": {
         "author": [
             {
-                "name": "Alessandro Serpi"
+                "name": "aserpi"
             }
         ],
         "classification": {
             "categories": [
-                "DevOps",
                 "IT Operations",
                 "Utility"
             ],
             "developmentStatus": "Alpha"
         },
-        "description": "Custom alert action to upload search results to an AWS S3 bucket.",
+        "description": "This add-on delivers an alert action that uploads search results to an Amazon S3 bucket.",
         "id": {
             "name": "TA_aws_s3_uploader"
         },
