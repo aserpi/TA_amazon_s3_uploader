@@ -253,6 +253,13 @@
                     "labelField": "title",
                     "help": "Select the AWS account from the dropdown",
                     "required": true
+                },
+                {
+                    "type": "checkbox",
+                    "label": "Allow empty results",
+                    "field": "upload_empty",
+                    "required": false,
+                    "defaultValue": true
                 }
             ]
         }

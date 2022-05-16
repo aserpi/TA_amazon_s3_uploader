@@ -130,9 +130,13 @@ def process_event(helper, *args, **kwargs):
     object_key = datetime.now().astimezone().strftime(object_key)
     helper.log_debug(f"Parsed object key {object_key}")
 
-    # TODO: check for file existence
     # splunktaucclib calls sys.exit if there are no results
-    results = helper.get_events()
+    if os.path.isfile(helper.results_file):
+        results = helper.get_events()
+    elif helper.get_param("upload_empty"):
+        results = []
+    else:
+        return 0
 
     if object_key.endswith(".csv") or object_key.endswith(".csv.gz"):
         upload_csv_to_s3(results, bucket, object_key, aws_access_key, aws_secret_key,
