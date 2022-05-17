@@ -37,7 +37,7 @@ def get_proxies(helper):
     """Get proxy settings."""
     proxy = helper.get_proxy()
     if not proxy:
-        return None
+        return None, True
 
     if proxy["proxy_username"] and proxy["proxy_password"]:
         proxy_url = (f"{proxy['proxy_type']}://"
@@ -48,11 +48,14 @@ def get_proxies(helper):
 
     proxies = {proxy['proxy_type']: proxy_url}
     helper.log_debug(f"Found proxies: {proxies}")
-    return proxies
+    verify_ssl = not helper.get_global_setting("disable_verify_ssl")
+    helper.log_debug(f"Found disable_verify_ssl '{verify_ssl}'")
+
+    return proxies, verify_ssl
 
 
 def upload_csv_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secret_key,
-                     aws_session_token, proxies):
+                     aws_session_token, verify_ssl, proxies):
     """Upload a (potentially compressed) CSV file to an AWS S3 bucket."""
     results = []
     for raw_result in raw_results:
@@ -71,14 +74,14 @@ def upload_csv_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secret
                     gzip_file.write(csv_buffer.getvalue().encode())
                 gzip_buffer.seek(0)  # Return to the start of the buffer
                 upload_to_s3(gzip_buffer, bucket, object_key, aws_access_key, aws_secret_key,
-                             aws_session_token, proxies)
+                             aws_session_token, verify_ssl, proxies)
         else:
             upload_to_s3(csv_buffer.getvalue().encode(), bucket, object_key, aws_access_key,
-                         aws_secret_key, aws_session_token, proxies)
+                         aws_secret_key, aws_session_token, verify_ssl, proxies)
 
 
 def upload_json_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secret_key,
-                      aws_session_token, proxies):
+                      aws_session_token, verify_ssl, proxies):
     """Upload a JSON file to an AWS S3 bucket."""
     results = []
     for raw_result in raw_results:
@@ -92,13 +95,13 @@ def upload_json_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secre
                 result[field_name] = raw_result[field_name]
         results.append(result)
     upload_to_s3(json.dumps(results).encode(), bucket, object_key, aws_access_key,
-                 aws_secret_key, aws_session_token, proxies)
+                 aws_secret_key, aws_session_token, verify_ssl, proxies)
 
 
 def upload_to_s3(results, bucket, object_key, aws_access_key, aws_secret_key, aws_session_token,
-                 proxies):
+                 verify_ssl, proxies):
     """Upload a file-like object to an AWS S3 bucket."""
-    s3 = boto3.resource("s3", aws_access_key_id=aws_access_key,
+    s3 = boto3.resource("s3", use_ssl=True, verify=verify_ssl, aws_access_key_id=aws_access_key,
                         aws_secret_access_key=aws_secret_key, aws_session_token=aws_session_token,
                         config=Config(proxies=proxies))
     s3_object = s3.Object(bucket, object_key)
@@ -118,7 +121,7 @@ def process_event(helper, *args, **kwargs):
     except KeyError:
         helper.log_error("Cannot find credentials for the account")
         return 3
-    proxies = get_proxies(helper)
+    proxies, verify_ssl = get_proxies(helper)
 
     bucket = helper.get_param("bucket_name")
     helper.log_debug(f"Found bucket '{bucket}'")
@@ -133,10 +136,10 @@ def process_event(helper, *args, **kwargs):
 
     if object_key.endswith(".csv") or object_key.endswith(".csv.gz"):
         upload_csv_to_s3(results, bucket, object_key, aws_access_key, aws_secret_key,
-                         aws_session_token, proxies)
+                         aws_session_token, verify_ssl, proxies)
     elif object_key.endswith(".json"):
         upload_json_to_s3(results, bucket, object_key, aws_access_key, aws_secret_key,
-                          aws_session_token, proxies)
+                          aws_session_token, verify_ssl, proxies)
     else:
         helper.log_error("Unsupported file extension")
         return 3

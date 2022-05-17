@@ -170,6 +170,12 @@
                                     "errorMsg": "Max length of password is 8192"
                                 }
                             ]
+                        },
+                        {
+                            "field": "disable_verify_ssl",
+                            "label": "Disable TLS verification",
+                            "type": "checkbox",
+                            "defaultValue": false
                         }
                     ],
                     "options": {
