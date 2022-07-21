@@ -1,0 +1,261 @@
+{
+    "pages": {
+        "configuration": {
+            "tabs": [
+                {
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": "Account name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "AWS access key id",
+                                "field": "aws_key_id"
+                            }
+                        ]
+                    },
+                    "name": "account",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Account name",
+                            "required": true,
+                            "help": "Enter a unique name for this account.",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Account name must consist exclusively of letters, numbers, spaces and underscores",
+                                    "pattern": "^[a-zA-Z _]+$"
+                                },
+                                {
+                                    "type": "string",
+                                    "maxLength": 50,
+                                    "errorMsg": "Maximum length allowed for username is 50",
+                                    "minLength": 1
+                                }
+                            ],
+                            "field": "name"
+                        },
+                        {
+                            "type": "text",
+                            "label": "AWS access key id",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "AWS access key id must be 20 uppercase letters and numbers",
+                                    "pattern": "^[A-Z0-9]{20}$"
+                                }
+                            ],
+                            "field": "aws_key_id"
+                        },
+                        {
+                            "type": "text",
+                            "label": "AWS secret access key",
+                            "encrypted": true,
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "AWS secret access key must be 40 uppercase letters, numbers, plus signs or slashes.",
+                                    "pattern": "^[a-zA-Z0-9+/]{40}$"
+                                }
+                            ],
+                            "field": "aws_secret"
+                        },
+                        {
+                            "type": "text",
+                            "label": "AWS session token",
+                            "encrypted": true,
+                            "required": false,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "AWS session token must be contain only uppercase letters, numbers, plus signs or slashes.",
+                                    "pattern": "^[a-zA-Z0-9+/]+$"
+                                }
+                            ],
+                            "field": "aws_session_token"
+                        }
+                    ],
+                    "title": "AWS account",
+                    "hook": {
+                        "src": "aws_account_hook"
+                    }
+                },
+                {
+                    "name": "proxy",
+                    "title": "Proxy",
+                    "entity": [
+                        {
+                            "field": "proxy_enabled",
+                            "label": "Enable",
+                            "type": "checkbox"
+                        },
+                        {
+                            "field": "proxy_type",
+                            "label": "Proxy type",
+                            "type": "singleSelect",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "label": "http",
+                                        "value": "http"
+                                    },
+                                    {
+                                        "label": "https",
+                                        "value": "https"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "https"
+                        },
+                        {
+                            "field": "proxy_url",
+                            "label": "Host",
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 4096,
+                                    "errorMsg": "Max host length is 4096"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "proxy_port",
+                            "label": "Port",
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "number",
+                                    "range": [
+                                        1,
+                                        65535
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "field": "proxy_username",
+                            "label": "Username",
+                            "type": "text",
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 50,
+                                    "errorMsg": "Max length of username is 50"
+                                }
+                            ]
+                        },
+                        {
+                            "field": "proxy_password",
+                            "label": "Password",
+                            "type": "text",
+                            "encrypted": true,
+                            "validators": [
+                                {
+                                    "type": "string",
+                                    "minLength": 0,
+                                    "maxLength": 8192,
+                                    "errorMsg": "Max length of password is 8192"
+                                }
+                            ]
+                        }
+                    ],
+                    "options": {
+                        "saveValidator": "function(formData) { if(!formData.proxy_enabled || formData.proxy_enabled === '0') {return true; } if(!formData.proxy_url) { return 'Proxy host cannot be empty'; } if(!formData.proxy_port) { return 'Proxy port cannot be empty'; } return true; }"
+                    }
+                },
+                {
+                    "name": "logging",
+                    "entity": [
+                        {
+                            "type": "singleSelect",
+                            "label": "Log level",
+                            "required": true,
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "DEBUG",
+                                        "label": "DEBUG"
+                                    },
+                                    {
+                                        "value": "INFO",
+                                        "label": "INFO"
+                                    },
+                                    {
+                                        "value": "WARNING",
+                                        "label": "WARNING"
+                                    },
+                                    {
+                                        "value": "ERROR",
+                                        "label": "ERROR"
+                                    },
+                                    {
+                                        "value": "CRITICAL",
+                                        "label": "CRITICAL"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "INFO",
+                            "field": "loglevel"
+                        }
+                    ],
+                    "title": "Logging"
+                }
+            ],
+            "title": "Configuration",
+            "description": "Set up your add-on"
+        }
+    },
+    "alerts": [
+        {
+            "name": "aws_s3_upload",
+            "label": "Upload to AWS S3",
+            "description": "Upload search results to an AWS S3 bucket",
+            "entity": [
+                {
+                    "type": "text",
+                    "label": "Bucket name",
+                    "field": "bucket_name",
+                    "required": true
+                },
+                {
+                    "type": "text",
+                    "label": "Object key",
+                    "field": "object_key",
+                    "required": true,
+                    "help": "Only .csv, .csv.gz and .json files are supported.\nCan encode a timestamp."
+                },
+                {
+                    "type": "singleSelectSplunkSearch",
+                    "label": "Select account",
+                    "field": "account",
+                    "search": "| rest /servicesNS/nobody/TA_aws_s3_uploader/TA_aws_s3_uploader_account | stats count by title | fields title",
+                    "valueField": "title",
+                    "labelField": "title",
+                    "help": "Select the AWS account from the dropdown",
+                    "required": true
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "displayName": "Upload to AWS S3",
+        "name": "TA_aws_s3_uploader",
+        "restRoot": "TA_aws_s3_uploader",
+        "version": "0.0.1",
+        "schemaVersion": "0.0.3"
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "info": {
+        "author": [
+            {
+                "name": "Alessandro Serpi"
+            }
+        ],
+        "classification": {
+            "categories": [
+                "DevOps",
+                "IT Operations",
+                "Utility"
+            ],
+            "developmentStatus": "Alpha"
+        },
+        "description": "Custom alert action to upload search results to an AWS S3 bucket.",
+        "id": {
+            "name": "TA_aws_s3_uploader"
+        },
+        "license": {
+            "name": "MIT License",
+            "text": "./LICENSE.md"
+        },
+        "title": "AWS S3 uploader"
+    },
+    "schemaVersion": "2.0.0",
+    "supportedDeployments": [
+        "_standalone",
+        "_distributed",
+        "_search_head_clustering"
+    ],
+    "targetWorkloads": [
+        "_search_heads"
+    ]
+}
