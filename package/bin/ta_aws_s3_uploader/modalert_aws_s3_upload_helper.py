@@ -47,9 +47,9 @@ def get_proxies(helper):
         proxy_url = f"{proxy['proxy_type']}://{proxy['proxy_url']}:{proxy['proxy_port']}"
 
     proxies = {proxy['proxy_type']: proxy_url}
-    helper.log_debug(f"Found proxies: {proxies}")
+    helper.log_debug(f"Found proxies: {proxies}.")
     verify_ssl = not helper.get_global_setting("disable_verify_ssl")
-    helper.log_debug(f"Found disable_verify_ssl '{verify_ssl}'")
+    helper.log_debug(f"Found disable_verify_ssl '{verify_ssl}'.")
 
     return proxies, verify_ssl
 
@@ -119,16 +119,16 @@ def process_event(helper, *args, **kwargs):
     try:
         aws_access_key, aws_secret_key, aws_session_token = get_credentials(helper)
     except KeyError:
-        helper.log_error("Cannot find credentials for the account")
+        helper.log_error("Cannot find credentials for the account.")
         return 3
     proxies, verify_ssl = get_proxies(helper)
 
     bucket = helper.get_param("bucket_name")
-    helper.log_debug(f"Found bucket '{bucket}'")
+    helper.log_debug(f"Found bucket '{bucket}'.")
     object_key = helper.get_param("object_key")
-    helper.log_debug(f"Found object key '{object_key}'")
+    helper.log_debug(f"Found object key '{object_key}'.")
     object_key = datetime.now().astimezone().strftime(object_key)
-    helper.log_debug(f"Parsed object key {object_key}")
+    helper.log_debug(f"Parsed object key '{object_key}'.")
 
     # splunktaucclib calls sys.exit if there are no results
     if os.path.isfile(helper.results_file):
@@ -145,7 +145,7 @@ def process_event(helper, *args, **kwargs):
         upload_json_to_s3(results, bucket, object_key, aws_access_key, aws_secret_key,
                           aws_session_token, verify_ssl, proxies)
     else:
-        helper.log_error("Unsupported file extension")
+        helper.log_error("Unsupported file extension.")
         return 3
 
     helper.log_info("Alert action aws_s3_upload completed.")
