@@ -56,7 +56,7 @@ def get_proxies(helper):
 
 def upload_csv_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secret_key,
                      aws_session_token, verify_ssl, proxies):
-    """Upload a (potentially compressed) CSV file to an AWS S3 bucket."""
+    """Upload a (potentially compressed) CSV file to an Amazon S3 bucket."""
     results = []
     for raw_result in raw_results:
         result = {}
@@ -82,7 +82,7 @@ def upload_csv_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secret
 
 def upload_json_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secret_key,
                       aws_session_token, verify_ssl, proxies):
-    """Upload a JSON file to an AWS S3 bucket."""
+    """Upload a JSON file to an Amazon S3 bucket."""
     results = []
     for raw_result in raw_results:
         result = {}
@@ -100,7 +100,7 @@ def upload_json_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secre
 
 def upload_to_s3(results, bucket, object_key, aws_access_key, aws_secret_key, aws_session_token,
                  verify_ssl, proxies):
-    """Upload a file-like object to an AWS S3 bucket."""
+    """Upload a file-like object to an Amazon S3 bucket."""
     s3 = boto3.resource("s3", use_ssl=True, verify=verify_ssl, aws_access_key_id=aws_access_key,
                         aws_secret_access_key=aws_secret_key, aws_session_token=aws_session_token,
                         config=Config(proxies=proxies))
@@ -114,7 +114,7 @@ def process_event(helper, *args, **kwargs):
     [sample_code_macro:start]
     [sample_code_macro:end]
     """
-    helper.log_info("Alert action aws_s3_upload started.")
+    helper.log_info("Alert action amazon_s3_upload started.")
 
     try:
         aws_access_key, aws_secret_key, aws_session_token = get_credentials(helper)
@@ -148,5 +148,5 @@ def process_event(helper, *args, **kwargs):
         helper.log_error("Unsupported file extension.")
         return 3
 
-    helper.log_info("Alert action aws_s3_upload completed.")
+    helper.log_info("Alert action amazon_s3_upload completed.")
     return 0

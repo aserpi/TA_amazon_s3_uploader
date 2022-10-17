@@ -227,9 +227,9 @@
     },
     "alerts": [
         {
-            "name": "aws_s3_upload",
-            "label": "Upload to AWS S3",
-            "description": "Upload search results to an AWS S3 bucket",
+            "name": "amazon_s3_upload",
+            "label": "Upload to Amazon S3",
+            "description": "Upload search results to an Amazon S3 bucket",
             "entity": [
                 {
                     "type": "text",
@@ -248,7 +248,7 @@
                     "type": "singleSelectSplunkSearch",
                     "label": "Select account",
                     "field": "account",
-                    "search": "| rest /servicesNS/nobody/TA_aws_s3_uploader/TA_aws_s3_uploader_account | stats count by title | fields title",
+                    "search": "| rest /servicesNS/nobody/amazon_s3_uploader/amazon_s3_uploader_account | stats count by title | fields title",
                     "valueField": "title",
                     "labelField": "title",
                     "help": "Select the AWS account from the dropdown",
@@ -266,8 +266,8 @@
     ],
     "meta": {
         "displayName": "Amazon S3 Uploader for Splunk",
-        "name": "TA_aws_s3_uploader",
-        "restRoot": "TA_aws_s3_uploader",
+        "name": "amazon_s3_uploader",
+        "restRoot": "amazon_s3_uploader",
         "version": "1.0.0",
         "schemaVersion": "0.0.3"
     }

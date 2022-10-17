@@ -1,7 +1,7 @@
 # Amazon S3 Uploader for Splunk
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/aserpi/TA_aws_s3_uploader)
-![License](https://img.shields.io/github/license/aserpi/TA_aws_s3_uploader)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/aserpi/amazon_s3_uploader)
+![License](https://img.shields.io/github/license/aserpi/amazon_s3_uploader)
 
 This Splunk add-on delivers an alert action that uploads search results
 to an Amazon S3 bucket.
@@ -68,7 +68,7 @@ the proxy performs TLS bridging with certificates signed by an
 untrusted CA).
 
 ### Logging
-The log file is stored in `$SPLUNK_HOME/var/log/splunk/log/aws_s3_uploader_modalert.csv`.
+The log file is stored in `$SPLUNK_HOME/var/log/splunk/log/amazon_s3_uploader_modalert.csv`.
 The default logging level is `INFO`, but it can be increased or
 decreased from the configuration dashboard.
 
