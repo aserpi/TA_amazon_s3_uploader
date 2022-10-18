@@ -10,27 +10,13 @@ from datetime import datetime
 
 import boto3
 from botocore.config import Config
-from solnlib import conf_manager
 
 
-APP_NAME = __file__.split(os.path.sep)[-4]
 # Each non-meta field '<FIELD>' has a corresponding entry
 # '__mv_<FIELD>' in the results. Multivalue fields are formatted as
 # $value_1$;$value_2$;...;$value_n$ and dollar signs are doubled.
 MV_FIELD_REGEX = re.compile(r"__mv_(.*)")
 MV_VALUE_REGEX = re.compile(r'\$(?P<item>(?:\$\$|[^$])*)\$(?:;|$)')
-
-
-def get_credentials(helper):
-    """Get AWS credentials."""
-    aws_account = helper.get_param("account")
-    helper.log_debug(f"Found AWS account '{aws_account}'")
-
-    conf_file = f"{APP_NAME.lower()}_account"
-    cfm = conf_manager.ConfManager(helper.session_key, APP_NAME,
-                                   realm=f"__REST_CREDENTIAL__#{APP_NAME}#configs/conf-{conf_file}")
-    account = cfm.get_conf(conf_file).get(aws_account)
-    return account["aws_key_id"], account["aws_secret"], account.get("aws_session_token")
 
 
 def get_proxies(helper):
@@ -116,12 +102,17 @@ def process_event(helper, *args, **kwargs):
     """
     helper.log_info("Alert action amazon_s3_upload started.")
 
-    try:
-        aws_access_key, aws_secret_key, aws_session_token = get_credentials(helper)
-    except KeyError:
+    aws_account = helper.get_param("account")
+    helper.log_debug(f"Found AWS account '{aws_account}'")
+
+    credentials = helper.get_user_credential_by_account_id(aws_account)
+    aws_access_key = credentials.get("aws_key_id")
+    aws_secret_key = credentials.get("aws_secret")
+    aws_session_token = credentials.get("aws_session_token")
+
+    if not aws_access_key or not aws_secret_key:
         helper.log_error("Cannot find credentials for the account.")
         return 3
-    proxies, verify_ssl = get_proxies(helper)
 
     bucket = helper.get_param("bucket_name")
     helper.log_debug(f"Found bucket '{bucket}'.")
@@ -137,6 +128,8 @@ def process_event(helper, *args, **kwargs):
         results = []
     else:
         return 0
+
+    proxies, verify_ssl = get_proxies(helper)
 
     if object_key.endswith(".csv") or object_key.endswith(".csv.gz"):
         upload_csv_to_s3(results, bucket, object_key, aws_access_key, aws_secret_key,
