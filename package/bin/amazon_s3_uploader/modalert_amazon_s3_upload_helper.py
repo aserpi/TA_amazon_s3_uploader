@@ -118,7 +118,10 @@ def process_event(helper, *args, **kwargs):
     helper.log_debug(f"Found bucket '{bucket}'.")
     object_key = helper.get_param("object_key")
     helper.log_debug(f"Found object key '{object_key}'.")
-    object_key = datetime.now().astimezone().strftime(object_key)
+
+    helper.addinfo()
+    search_time = datetime.fromtimestamp(float(helper.info['_timestamp'])).astimezone()
+    object_key = search_time.strftime(object_key)
     helper.log_debug(f"Parsed object key '{object_key}'.")
 
     # splunktaucclib calls sys.exit if there are no results

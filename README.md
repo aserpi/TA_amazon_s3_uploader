@@ -40,7 +40,8 @@ test
 Both searches generate the same JSON `{"test": ["value1", "value2"]}`.
 
 ### Timestamp
-The object key is passed to Python's `datetime.strftime()` function, which encodes the time **TODO**.
+The user-provided object key is passed to Python's `datetime.strftime()` function, which encodes
+the time the search started.
 Format codes are extremely similar to Splunk's, please refer to the [official documentation](https://docs.python.org/3.7/library/datetime.html#strftime-strptime-behavior).
 
 
