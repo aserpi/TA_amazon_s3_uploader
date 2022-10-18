@@ -15,7 +15,6 @@ from botocore.config import Config
 # Each non-meta field '<FIELD>' has a corresponding entry
 # '__mv_<FIELD>' in the results. Multivalue fields are formatted as
 # $value_1$;$value_2$;...;$value_n$ and dollar signs are doubled.
-MV_FIELD_REGEX = re.compile(r"__mv_(.*)")
 MV_VALUE_REGEX = re.compile(r'\$(?P<item>(?:\$\$|[^$])*)\$(?:;|$)')
 
 
@@ -46,9 +45,9 @@ def upload_csv_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secret
     results = []
     for raw_result in raw_results:
         result = {}
-        for field in filter(lambda f: f.startswith("__mv_"), raw_result):
-            field_name = MV_FIELD_REGEX.fullmatch(field).group(1)
-            result[field_name] = raw_result[field_name]
+        for field_name in (n for n in raw_result if n.startswith("__mv_")):
+            field_name = field_name[5:]
+            result[field_name] = raw_result[field_name]  # Save the raw value
         results.append(result)
     with io.StringIO() as csv_buffer:
         writer = csv.DictWriter(csv_buffer, fieldnames=results[0].keys())
@@ -72,8 +71,9 @@ def upload_json_to_s3(raw_results, bucket, object_key, aws_access_key, aws_secre
     results = []
     for raw_result in raw_results:
         result = {}
-        for field_name, field_values in filter(lambda i: i[0].startswith("__mv_"), raw_result.items()):
-            field_name = MV_FIELD_REGEX.fullmatch(field_name).group(1)
+        mv_fields = ((n, v) for n, v in raw_result.items() if n.startswith("__mv_"))
+        for field_name, field_values in mv_fields:
+            field_name = field_name[5:]
             if field_values:  # Multivalue field
                 mv = [match.replace("$$", "$") for match in MV_VALUE_REGEX.findall(field_values)]
                 result[field_name] = mv
