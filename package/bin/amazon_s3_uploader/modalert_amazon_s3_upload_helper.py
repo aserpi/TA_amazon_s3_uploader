@@ -4,8 +4,8 @@ import csv
 import gzip
 import io
 import json
-import re
 import os
+import re
 from datetime import datetime
 
 import boto3
