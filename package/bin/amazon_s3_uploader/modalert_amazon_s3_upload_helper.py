@@ -6,7 +6,7 @@ import io
 import json
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 import boto3
 from botocore.config import Config
@@ -120,7 +120,8 @@ def process_event(helper, *args, **kwargs):
     helper.log_debug(f"Found object key '{object_key}'.")
 
     helper.addinfo()
-    search_time = datetime.fromtimestamp(float(helper.info['_timestamp'])).astimezone()
+    tz = timezone.utc if helper.get_param("utc") else None
+    search_time = datetime.fromtimestamp(float(helper.info['_timestamp'])).astimezone(tz)
     object_key = search_time.strftime(object_key)
     helper.log_debug(f"Parsed object key '{object_key}'.")
 

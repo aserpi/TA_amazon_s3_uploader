@@ -256,6 +256,13 @@
                 },
                 {
                     "type": "checkbox",
+                    "label": "Use UTC",
+                    "field": "false",
+                    "required": false,
+                    "defaultValue": false
+                },
+                {
+                    "type": "checkbox",
                     "label": "Allow empty results",
                     "field": "upload_empty",
                     "required": false,
