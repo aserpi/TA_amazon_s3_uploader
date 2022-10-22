@@ -11,7 +11,7 @@
                         ],
                         "header": [
                             {
-                                "label": "Account name",
+                                "label": "Name",
                                 "field": "name"
                             },
                             {
@@ -30,13 +30,13 @@
                             "validators": [
                                 {
                                     "type": "regex",
-                                    "errorMsg": "Account name must consist exclusively of letters, numbers, spaces and underscores",
-                                    "pattern": "^[a-zA-Z _]+$"
+                                    "pattern": "^[0-9|a-z|A-Z][\\w\\- ,]*$",
+                                    "errorMsg": "Characters of Name should start with alphanumeric and contain alphanumeric, space, dash, underscore or comma only."
                                 },
                                 {
                                     "type": "string",
                                     "maxLength": 50,
-                                    "errorMsg": "Maximum length allowed for username is 50",
+                                    "errorMsg": "Maximum length allowed for account name is 50",
                                     "minLength": 1
                                 }
                             ],
@@ -49,8 +49,8 @@
                             "validators": [
                                 {
                                     "type": "regex",
-                                    "errorMsg": "AWS access key id must be 20 uppercase letters and numbers",
-                                    "pattern": "^[A-Z0-9]{20}$"
+                                    "errorMsg": "AWS access key ID must contain between 16 and 128 word characters.",
+                                    "pattern": "^[\\w]{16,128}$"
                                 }
                             ],
                             "field": "aws_key_id"
@@ -60,13 +60,6 @@
                             "label": "AWS secret access key",
                             "encrypted": true,
                             "required": true,
-                            "validators": [
-                                {
-                                    "type": "regex",
-                                    "errorMsg": "AWS secret access key must be 40 uppercase letters, numbers, plus signs or slashes.",
-                                    "pattern": "^[a-zA-Z0-9+/]{40}$"
-                                }
-                            ],
                             "field": "aws_secret"
                         },
                         {
@@ -84,7 +77,7 @@
                             "field": "aws_session_token"
                         }
                     ],
-                    "title": "AWS account",
+                    "title": "Account",
                     "hook": {
                         "src": "aws_account_hook"
                     }
