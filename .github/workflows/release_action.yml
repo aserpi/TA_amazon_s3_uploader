@@ -31,10 +31,12 @@ jobs:
         run: ucc-gen --ta-version ${{ steps.get-version.outputs.group1 }}
       - name: Fix permissions
         run: |
-          find output/${{ env.app_id }} -type d -exec chmod 755 -- {} +
-          find output/${{ env.app_id }} -type f -exec chmod 644 -- {} +
+          find output/${{ env.app_id }} -type d -exec chmod 700 -- {} +
+          find output/${{ env.app_id }} -type f -exec chmod 600 -- {} +
       - name: Package
-        run: slim package output/${{ env.app_id }}
+        run: |
+          slim package output/${{ env.app_id }}
+          chmod 400 ${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
       - name: Extract changelog
         id: get-changelog
         run: |
