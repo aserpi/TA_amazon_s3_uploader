@@ -83,6 +83,65 @@
                     }
                 },
                 {
+                    "table": {
+                        "actions": [
+                            "edit",
+                            "delete",
+                            "clone"
+                        ],
+                        "header": [
+                            {
+                                "label": " Name",
+                                "field": "name"
+                            },
+                            {
+                                "label": "Role ARN",
+                                "field": "aws_arn"
+                            }
+                        ]
+                    },
+                    "name": "role",
+                    "entity": [
+                        {
+                            "type": "text",
+                            "label": "Name",
+                            "required": true,
+                            "help": "Enter a unique name for this role.",
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "pattern": "^[0-9|a-z|A-Z][\\w\\- ,]*$",
+                                    "errorMsg": "Characters of Name should start with alphanumeric and contain alphanumeric, space, dash, underscore or comma only."
+                                },
+                                {
+                                    "type": "string",
+                                    "maxLength": 50,
+                                    "errorMsg": "Maximum length allowed for role name is 50",
+                                    "minLength": 1
+                                }
+                            ],
+                            "field": "name"
+                        },
+                        {
+                            "type": "text",
+                            "label": "Role ARN",
+                            "required": true,
+                            "validators": [
+                                {
+                                    "type": "regex",
+                                    "errorMsg": "Invalid role ARN.",
+                                    "pattern": "^arn:aws:iam::[\\d]{12}:role/[A-Za-z0-9_+=,.@-]+$"
+                                }
+                            ],
+                            "field": "aws_arn"
+                        }
+                    ],
+                    "title": "IAM Role",
+                    "hook": {
+                        "src": "aws_role_hook"
+                    }
+                },
+                {
                     "name": "proxy",
                     "title": "Proxy",
                     "entity": [
@@ -246,6 +305,14 @@
                     "labelField": "title",
                     "help": "Select the AWS account from the dropdown",
                     "required": true
+                },
+                {
+                    "type": "singleSelectSplunkSearch",
+                    "label": "Select role",
+                    "field": "role",
+                    "search": "| rest /servicesNS/nobody/amazon_s3_uploader/amazon_s3_uploader_role | stats count by title | fields title",
+                    "valueField": "title",
+                    "labelField": "title"
                 },
                 {
                     "type": "checkbox",

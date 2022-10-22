@@ -1,2 +1,3 @@
 boto3~=1.24
+solnlib>=4.7.0
 splunktaucclib>=6.0.6
