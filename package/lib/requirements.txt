@@ -1,2 +1,2 @@
-boto3~=1.22
-splunktaucclib>=6.0.0
+boto3~=1.24
+splunktaucclib>=6.0.6
