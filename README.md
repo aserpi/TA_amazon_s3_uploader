@@ -1,6 +1,8 @@
 # Amazon S3 Uploader for Splunk
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/aserpi/TA_amazon_s3_uploader)
+![Splunk Enterprise](https://img.shields.io/badge/Splunk%20Enterprise-8.0+-67a53e?logo=splunk)
+![Splunk Cloud](https://img.shields.io/badge/Splunk%20Cloud-8.1%2B-ed0080?logo=splunk)
 ![License](https://img.shields.io/github/license/aserpi/TA_amazon_s3_uploader)
 
 This Splunk add-on delivers an alert action that uploads search results
