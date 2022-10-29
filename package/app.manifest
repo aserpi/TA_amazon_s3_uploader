@@ -10,7 +10,7 @@
                 "IT Operations",
                 "Utility"
             ],
-            "developmentStatus": "Alpha"
+            "developmentStatus": "Production/Stable"
         },
         "description": "This add-on delivers an alert action that uploads search results to an Amazon S3 bucket.",
         "id": {
