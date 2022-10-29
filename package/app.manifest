@@ -14,7 +14,7 @@
         },
         "description": "This add-on delivers an alert action that uploads search results to an Amazon S3 bucket.",
         "id": {
-            "name": "amazon_s3_uploader"
+            "name": "TA_amazon_s3_uploader"
         },
         "license": {
             "name": "MIT License",

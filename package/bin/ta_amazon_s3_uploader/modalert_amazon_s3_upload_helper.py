@@ -44,7 +44,7 @@ def get_credentials(helper, aws_region, boto_config, verify_ssl):
 
     cfm = conf_manager.ConfManager(helper.session_key, helper.ta_name)
     try:
-        roles = cfm.get_conf("amazon_s3_uploader_role")
+        roles = cfm.get_conf("ta_amazon_s3_uploader_role")
         aws_role = roles.get(aws_role)["aws_arn"]
     except (KeyError, conf_manager.ConfManagerException, conf_manager.ConfStanzaNotExistException):
         helper.log_error("Role not found in configuration file.")
