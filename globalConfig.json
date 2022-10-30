@@ -315,6 +315,12 @@
                     "labelField": "title"
                 },
                 {
+                    "type": "text",
+                    "label": "Select region",
+                    "field": "aws_region",
+                    "help": "Select region only if you want to use regional endpoints."
+                },
+                {
                     "type": "checkbox",
                     "label": "Use UTC",
                     "field": "false",
