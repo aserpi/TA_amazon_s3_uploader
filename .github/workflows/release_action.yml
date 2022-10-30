@@ -56,7 +56,7 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: ../${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
+          artifacts: ${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
           body: ${{ env.CHANGELOG }}
           prerelease: ${{ steps.get-version.outputs.group2 != '' }}
           token: ${{ secrets.RELEASE_TOKEN }}
