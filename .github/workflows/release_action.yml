@@ -54,10 +54,9 @@ jobs:
           ' >> $GITHUB_ENV
           echo 'CHANGELOG_EOF' >> $GITHUB_ENV
       - name: Release
-        uses: softprops/action-gh-release@v0.1.14
+        uses: ncipollo/release-action@v1
         with:
+          artifacts: ../${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
           body: ${{ env.CHANGELOG }}
-          fail_on_unmatched_files: true
-          files: ${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
           prerelease: ${{ steps.get-version.outputs.group2 != '' }}
           token: ${{ secrets.RELEASE_TOKEN }}
