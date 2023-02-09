@@ -43,8 +43,8 @@ jobs:
           echo 'CHANGELOG<<CHANGELOG_EOF' >> $GITHUB_ENV
           cat CHANGELOG.md | sed '1,/## ${{ steps.get-version.outputs.group1 }}/d;/## /,$d' | awk '
               /[[:graph:]]/ {
-                  p=1  # A non-empty line: set the flag to begin printing lines  
-                  for (i=1; i<=n; i++) print ""  # Print the accumulated inner empty lines 
+                  p=1  # A non-empty line: set the flag to begin printing lines
+                  for (i=1; i<=n; i++) print ""  # Print the accumulated inner empty lines
                   n=0
                   print  # Print the current line
               }

@@ -29,13 +29,13 @@ test
 "value1
 value2"
 ```
-whereas the search 
+whereas the search
 `| makeresults | eval test="value1,value2" | makemv delim="," test | fields - _*`
 produces the CSV
 ```
 test
 "value1,value2"
-``` 
+```
 
 Both searches generate the same JSON `{"test": ["value1", "value2"]}`.
 
