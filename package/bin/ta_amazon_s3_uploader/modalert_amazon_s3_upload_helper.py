@@ -4,7 +4,6 @@ import csv
 import gzip
 import io
 import json
-import os
 import re
 from datetime import datetime, timezone
 
@@ -170,12 +169,12 @@ def process_event(helper, *args, **kwargs):
     helper.log_debug(f"Parsed object key '{object_key}'.")
 
     # splunktaucclib calls sys.exit if there are no results
-    if os.path.isfile(helper.results_file):
+    try:
         results = helper.get_events()
-    elif helper.get_param("upload_empty"):
+    except SystemExit:
+        if not helper.get_param("upload_empty"):
+            return 0
         results = []
-    else:
-        return 0
 
     if object_key.endswith(".csv") or object_key.endswith(".csv.gz"):
         upload_csv_to_s3(results, bucket, object_key, aws_credentials, aws_config)
