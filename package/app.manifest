@@ -2,6 +2,7 @@
     "info": {
         "author": [
             {
+                "email": "splunkapps@aserpi.it",
                 "name": "aserpi"
             }
         ],
@@ -18,7 +19,8 @@
         },
         "license": {
             "name": "MIT License",
-            "text": "./LICENSE.md"
+            "text": "./LICENSE.md",
+            "uri": "https://github.com/aserpi/TA_amazon_s3_uploader/raw/main/LICENSE.md"
         },
         "title": "Amazon S3 Uploader for Splunk"
     },
