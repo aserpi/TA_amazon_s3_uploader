@@ -49,7 +49,7 @@
         },
         {
           "defaultValue": false,
-          "field": "false",
+          "field": "utc",
           "label": "Use UTC",
           "required": false,
           "type": "checkbox"
