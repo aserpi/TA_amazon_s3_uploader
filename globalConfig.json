@@ -2,7 +2,7 @@
   "meta": {
     "displayName": "Amazon S3 Uploader for Splunk",
     "name": "TA_amazon_s3_uploader",
-    "restRoot": "ta_amazon_s3_uploader",
+    "restRoot": "TA_amazon_s3_uploader",
     "schemaVersion": "0.0.3",
     "version": "1.0.1"
   },
@@ -29,7 +29,7 @@
           "label": "Select account",
           "labelField": "title",
           "required": true,
-          "search": "| rest /servicesNS/nobody/ta_amazon_s3_uploader/ta_amazon_s3_uploader_account | stats count by title | fields title",
+          "search": "| rest /servicesNS/nobody/TA_amazon_s3_uploader/TA_amazon_s3_uploader_account | stats count by title | fields title",
           "type": "singleSelectSplunkSearch",
           "valueField": "title"
         },
@@ -37,7 +37,7 @@
           "field": "role",
           "label": "Select role",
           "labelField": "title",
-          "search": "| rest /servicesNS/nobody/ta_amazon_s3_uploader/ta_amazon_s3_uploader_role | stats count by title | fields title",
+          "search": "| rest /servicesNS/nobody/TA_amazon_s3_uploader/TA_amazon_s3_uploader_role | stats count by title | fields title",
           "type": "singleSelectSplunkSearch",
           "valueField": "title"
         },
