@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 - 2023-03-03
+
+Fix incorrect REST root and UTC option field.
+
 ## 1.0.1 - 2023-02-10
 
 Improve handling of empty results.

@@ -4,7 +4,7 @@
     "name": "TA_amazon_s3_uploader",
     "restRoot": "TA_amazon_s3_uploader",
     "schemaVersion": "0.0.3",
-    "version": "1.0.1"
+    "version": "1.0.2"
   },
   "alerts": [
     {
