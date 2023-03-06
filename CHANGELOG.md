@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3 - 2023-03-06
+
+Fix deactivation of TSL certificate check.
+
 ## 1.0.2 - 2023-03-03
 
 Fix incorrect REST root and UTC option field.
