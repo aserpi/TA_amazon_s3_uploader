@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 import boto3
 import botocore.config
 import botocore.exceptions
-from solnlib import conf_manager
+from solnlib import conf_manager, utils
 
 
 # Each non-meta field '<FIELD>' has a corresponding entry
@@ -82,10 +82,15 @@ def get_proxies(helper):
                      f"{proxy['proxy_url']}:{proxy['proxy_port']}")
     else:
         proxy_url = f"{proxy['proxy_type']}://{proxy['proxy_url']}:{proxy['proxy_port']}"
-
     proxies = {proxy['proxy_type']: proxy_url}
     helper.log_debug(f"Found proxies: {proxies}.")
-    verify_ssl = not helper.get_global_setting("disable_verify_ssl")
+
+    cfm = conf_manager.ConfManager(helper.session_key, helper.ta_name)
+    try:
+        proxy_conf = cfm.get_conf("ta_amazon_s3_uploader_settings")
+        verify_ssl = utils.is_false(proxy_conf.get("proxy")["disable_verify_ssl"])
+    except (KeyError, conf_manager.ConfManagerException, conf_manager.ConfStanzaNotExistException):
+        verify_ssl = True
     helper.log_debug(f"Found disable_verify_ssl '{verify_ssl}'.")
 
     return {"config": botocore.config.Config(proxies), "verify": verify_ssl}
