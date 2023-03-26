@@ -6,7 +6,7 @@ repos:
     - id: check-yaml
     - id: end-of-file-fixer
     - id: pretty-format-json
-      args: ['--autofix', '--top-keys', 'meta']
+      args: ['--autofix', "--indent=4", '--top-keys=meta']
     - id: requirements-txt-fixer
     - id: trailing-whitespace
       args:
