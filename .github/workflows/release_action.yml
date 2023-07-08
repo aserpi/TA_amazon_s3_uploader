@@ -7,6 +7,13 @@ on:
 env:
   app_id: ${{ github.event.repository.name }}
 
+permissions:
+  contents: write
+
+concurrency:
+  group: 'release'
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -59,4 +66,3 @@ jobs:
           artifacts: ${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
           body: ${{ env.CHANGELOG }}
           prerelease: ${{ steps.get-version.outputs.group2 != '' }}
-          token: ${{ secrets.RELEASE_TOKEN }}
