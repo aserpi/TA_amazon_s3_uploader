@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 2023-07-11
+
+Support Boto3's automatic credentials retrieval.
+Add support for Splunk Cloud.
+
 ## 1.0.3 - 2023-03-06
 
 Fix deactivation of TSL certificate check.
