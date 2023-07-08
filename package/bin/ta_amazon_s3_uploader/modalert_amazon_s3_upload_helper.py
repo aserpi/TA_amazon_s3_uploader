@@ -19,15 +19,12 @@ from solnlib import conf_manager, utils
 MV_VALUE_REGEX = re.compile(r'\$(?P<item>(?:\$\$|[^$])*)\$(?:;|$)')
 
 
-def get_credentials(helper, aws_config):
-    """Get AWS credentials."""
-    aws_account = helper.get_param("account")
-    helper.log_debug(f"Found AWS account '{aws_account}'")
-
+def get_account_credentials(helper, aws_account, aws_config):
+    """Get AWS credentials specified by the user."""
     credentials = helper.get_user_credential_by_account_id(aws_account)
     if not credentials:
         helper.log_error("AWS account not found in configuration file.")
-        return {}
+        return None
     aws_credentials = {
         "aws_access_key_id": credentials.get("aws_key_id"),
         "aws_secret_access_key": credentials.get("aws_secret"),
@@ -36,10 +33,10 @@ def get_credentials(helper, aws_config):
 
     if not aws_credentials["aws_access_key_id"]:
         helper.log_error("Missing AWS access key ID.")
-        return {}
+        return None
     if not aws_credentials["aws_secret_access_key"]:
         helper.log_error("Missing AWS secret access key.")
-        return {}
+        return None
 
     aws_role = helper.get_param("role")
     if not aws_role:
@@ -52,7 +49,7 @@ def get_credentials(helper, aws_config):
         aws_role = roles.get(aws_role)["aws_arn"]
     except (KeyError, conf_manager.ConfManagerException, conf_manager.ConfStanzaNotExistException):
         helper.log_error("Role not found in configuration file.")
-        return {}
+        return None
 
     sts = boto3.client("sts", **aws_credentials, **aws_config)
     try:
@@ -61,13 +58,29 @@ def get_credentials(helper, aws_config):
                                       DurationSeconds=3600)["Credentials"]
     except botocore.exceptions.ClientError as e:
         helper.log_error(f"Cannot assume role: {e.response['Error']['Message']}")
-        return {}
+        return None
 
     return {
         "aws_access_key_id": credentials["AccessKeyId"],
         "aws_secret_access_key": credentials["SecretAccessKey"],
         "aws_session_token": credentials["SessionToken"],
     }
+
+
+def get_credentials(helper, aws_config):
+    """Get AWS credentials."""
+    aws_account = helper.get_param("account")
+    helper.log_debug(f"Found AWS account '{aws_account}'")
+
+    if aws_account == "Boto3":
+        try:
+            boto3.client("sts").get_caller_identity()
+        except botocore.exceptions.NoCredentialsError:
+            helper.log_error("Boto3 cannot find any credentials")
+            return None
+        return {}
+
+    return get_account_credentials(helper, aws_account, aws_config)
 
 
 def get_proxies(helper):
@@ -159,7 +172,7 @@ def process_event(helper, *args, **kwargs):
         aws_config["region_name"] = aws_region
 
     aws_credentials = get_credentials(helper, aws_config)
-    if not aws_credentials:
+    if aws_credentials is None:
         return 11
 
     bucket = helper.get_param("bucket_name")

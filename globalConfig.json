@@ -24,12 +24,13 @@
                     "type": "text"
                 },
                 {
+                    "defaultValue": "Boto3",
                     "field": "account",
                     "help": "Select the AWS account from the dropdown",
                     "label": "Select account",
                     "labelField": "title",
                     "required": true,
-                    "search": "| rest /servicesNS/nobody/TA_amazon_s3_uploader/TA_amazon_s3_uploader_account | stats count by title | fields title",
+                    "search": "| rest /servicesNS/nobody/TA_amazon_s3_uploader/TA_amazon_s3_uploader_account | stats count by title | fields title | append [ | makeresults | eval title=&quot;Boto3&quot; ]",
                     "type": "singleSelectSplunkSearch",
                     "valueField": "title"
                 },
@@ -89,6 +90,11 @@
                                     "maxLength": 50,
                                     "minLength": 1,
                                     "type": "string"
+                                },
+                                {
+                                    "errorMsg": "Cannot use this name",
+                                    "pattern": "^(?!Boto3$).*$",
+                                    "type": "regex"
                                 }
                             ]
                         },

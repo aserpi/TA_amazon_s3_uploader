@@ -58,6 +58,12 @@ Temporary security credentials (which have a session token in addition
 to the access key ID and the secret access key) are supported, but
 should be used for test purposes only.
 
+Use the account `Boto3` to use Boto3's default authentication method.
+Please refer to the [official documentation](https://boto3.amazonaws.com/v1/documentation/api/1.28.1/index.html)
+for the order in which Boto3 searches for credentials.
+If this method is account, then manually specifying a role has no
+effect.
+
 ### Proxy
 HTTP and HTTPS proxy servers, both authenticated and unauthenticated,
 are supported.
