@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 2024-01-10
+
+Update dependencies to comply with new Splunk Cloud requirements.
+
 ## 1.1.0 2023-07-11
 
 Support Boto3's automatic credentials retrieval.
