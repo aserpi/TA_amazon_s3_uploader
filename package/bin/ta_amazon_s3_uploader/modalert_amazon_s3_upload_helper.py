@@ -182,7 +182,7 @@ def process_event(helper, *args, **kwargs):
 
     helper.addinfo()
     tz = timezone.utc if helper.get_param("utc") else None
-    search_time = datetime.fromtimestamp(float(helper.info['_timestamp'])).astimezone(tz)
+    search_time = datetime.fromtimestamp(float(helper.info.get('_timestamp', datetime.now().strftime("%s.%f")))).astimezone(tz)
     object_key = search_time.strftime(object_key)
     helper.log_debug(f"Parsed object key '{object_key}'.")
 
