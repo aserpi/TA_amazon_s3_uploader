@@ -1,9 +1,10 @@
 {
     "meta": {
+        "_uccVersion": "5.53.2",
         "displayName": "Amazon S3 Uploader for Splunk",
         "name": "TA_amazon_s3_uploader",
         "restRoot": "TA_amazon_s3_uploader",
-        "schemaVersion": "0.0.3",
+        "schemaVersion": "0.0.9",
         "version": "1.1.1"
     },
     "alerts": [
@@ -308,42 +309,7 @@
                     "title": "Proxy"
                 },
                 {
-                    "entity": [
-                        {
-                            "defaultValue": "INFO",
-                            "field": "loglevel",
-                            "label": "Log level",
-                            "options": {
-                                "autoCompleteFields": [
-                                    {
-                                        "label": "DEBUG",
-                                        "value": "DEBUG"
-                                    },
-                                    {
-                                        "label": "INFO",
-                                        "value": "INFO"
-                                    },
-                                    {
-                                        "label": "WARNING",
-                                        "value": "WARNING"
-                                    },
-                                    {
-                                        "label": "ERROR",
-                                        "value": "ERROR"
-                                    },
-                                    {
-                                        "label": "CRITICAL",
-                                        "value": "CRITICAL"
-                                    }
-                                ],
-                                "disableSearch": true
-                            },
-                            "required": true,
-                            "type": "singleSelect"
-                        }
-                    ],
-                    "name": "logging",
-                    "title": "Logging"
+                    "type": "loggingTab"
                 }
             ],
             "title": "Configuration"
