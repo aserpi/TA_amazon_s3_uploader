@@ -20,3 +20,9 @@ def additional_packaging(ta_name):
     filedata = filedata.replace("SOCK_DGRAM", "SOCK_STREAM")  # Force TCP connections
     with open(output_path / "lib/botocore/session.py", "w") as file:
         file.write(filedata)
+
+    # FIXME: Patch splunktaucclib waiting for official fix
+    with open(output_path / "lib/splunktaucclib/cim_actions.py", 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(f"import codecs\n{content}")
