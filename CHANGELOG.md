@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.0 2024-11-23
+
+Provide a custom `splunktaucclib` to fix a bug that prevented this add-on from working properly.
+
+BREAKING CHANGE: Drop support for Splunk<9.3.0
+Amazon dropped support for Python 3.7 in their official AWS package.
+
 ## 1.1.1 2024-01-10
 
 Update dependencies to comply with new Splunk Cloud requirements.
