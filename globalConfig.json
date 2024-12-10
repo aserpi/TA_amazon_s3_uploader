@@ -1,6 +1,6 @@
 {
     "meta": {
-        "_uccVersion": "5.53.2",
+        "_uccVersion": "5.55.0",
         "displayName": "Amazon S3 Uploader for Splunk",
         "name": "TA_amazon_s3_uploader",
         "restRoot": "TA_amazon_s3_uploader",
