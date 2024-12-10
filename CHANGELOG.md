@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 2024-12-10
+
+Use an original `splunktaucclib` that fixes the bug that prevented this add-on from working properly.
+
 ## 2.0.0 2024-11-23
 
 Provide a custom `splunktaucclib` to fix a bug that prevented this add-on from working properly.
