@@ -6,11 +6,14 @@ import io
 import json
 import re
 from datetime import datetime, timezone
+from typing import Any, TypedDict
 
 import boto3
 import botocore.config
 import botocore.exceptions
 from solnlib import conf_manager, utils
+
+from amazon_s3_upload import AlertActionWorkeramazon_s3_upload  # noqa
 
 
 # Each non-meta field '<FIELD>' has a corresponding entry
@@ -19,17 +22,31 @@ from solnlib import conf_manager, utils
 MV_VALUE_REGEX = re.compile(r"\$(?P<item>(?:\$\$|[^$])*)\$(?:;|$)")
 
 
-def get_account_credentials(helper, aws_account, aws_config):
+class AwsConfig(TypedDict, total=False):
+    config: botocore.config.Config
+    region_name: str
+    verify: bool
+
+
+class AwsCredentials(TypedDict, total=False):
+    aws_access_key_id: str
+    aws_secret_access_key: str
+    aws_session_token: str | None
+
+
+def _get_account_credentials(
+    helper: AlertActionWorkeramazon_s3_upload, aws_account: str, aws_config: AwsConfig
+) -> AwsCredentials | None:
     """Get AWS credentials specified by the user."""
     credentials = helper.get_user_credential_by_account_id(aws_account)
     if not credentials:
         helper.log_error("AWS account not found in configuration file.")
         return None
-    aws_credentials = {
-        "aws_access_key_id": credentials.get("aws_key_id"),
-        "aws_secret_access_key": credentials.get("aws_secret"),
-        "aws_session_token": credentials.get("aws_session_token"),
-    }
+    aws_credentials = AwsCredentials(
+        aws_access_key_id=credentials.get("aws_key_id"),
+        aws_secret_access_key=credentials.get("aws_secret"),
+        aws_session_token=credentials.get("aws_session_token"),
+    )
 
     if not aws_credentials["aws_access_key_id"]:
         helper.log_error("Missing AWS access key ID.")
@@ -66,14 +83,17 @@ def get_account_credentials(helper, aws_account, aws_config):
         helper.log_error(f"Cannot assume role: {e.response['Error']['Message']}")
         return None
 
-    return {
-        "aws_access_key_id": credentials["AccessKeyId"],
-        "aws_secret_access_key": credentials["SecretAccessKey"],
-        "aws_session_token": credentials["SessionToken"],
-    }
+    return AwsCredentials(
+        aws_access_key_id=credentials["AccessKeyId"],
+        aws_secret_access_key=credentials["SecretAccessKey"],
+        aws_session_token=credentials["SessionToken"],
+    )
 
 
-def get_credentials(helper, aws_config):
+def _get_credentials(
+    helper: AlertActionWorkeramazon_s3_upload,
+    aws_config: AwsConfig,
+) -> AwsCredentials | None:
     """Get AWS credentials."""
     aws_account = helper.get_param("account")
     helper.log_debug(f"Found AWS account '{aws_account}'")
@@ -84,16 +104,16 @@ def get_credentials(helper, aws_config):
         except botocore.exceptions.NoCredentialsError:
             helper.log_error("Boto3 cannot find any credentials")
             return None
-        return {}
+        return AwsCredentials()
 
-    return get_account_credentials(helper, aws_account, aws_config)
+    return _get_account_credentials(helper, aws_account, aws_config)
 
 
-def get_proxies(helper):
+def _get_proxies(helper: AlertActionWorkeramazon_s3_upload) -> AwsConfig:
     """Get proxy settings."""
     proxy = helper.get_proxy()
     if not proxy:
-        return {}
+        return AwsConfig()
 
     if proxy["proxy_username"] and proxy["proxy_password"]:
         proxy_url = (
@@ -120,10 +140,16 @@ def get_proxies(helper):
         verify_ssl = True
     helper.log_debug(f"Found disable_verify_ssl '{verify_ssl}'.")
 
-    return {"config": botocore.config.Config(proxies), "verify": verify_ssl}
+    return AwsConfig(config=botocore.config.Config(proxies), verify=verify_ssl)
 
 
-def upload_csv_to_s3(raw_results, bucket, object_key, aws_credentials, aws_config):
+def _upload_csv_to_s3(
+    raw_results: list[dict[str, Any]],
+    bucket: str,
+    object_key: str,
+    aws_credentials: AwsCredentials,
+    aws_config: AwsConfig,
+) -> None:
     """Upload a (potentially compressed) CSV file to an Amazon S3 bucket."""
     results = []
     for raw_result in raw_results:
@@ -141,11 +167,11 @@ def upload_csv_to_s3(raw_results, bucket, object_key, aws_credentials, aws_confi
                 with gzip.open(gzip_buffer, mode="w") as gzip_file:
                     gzip_file.write(csv_buffer.getvalue().encode())
                 gzip_buffer.seek(0)  # Return to the start of the buffer
-                upload_to_s3(
+                _upload_to_s3(
                     gzip_buffer, bucket, object_key, aws_credentials, aws_config
                 )
         else:
-            upload_to_s3(
+            _upload_to_s3(
                 csv_buffer.getvalue().encode(),
                 bucket,
                 object_key,
@@ -154,7 +180,13 @@ def upload_csv_to_s3(raw_results, bucket, object_key, aws_credentials, aws_confi
             )
 
 
-def upload_json_to_s3(raw_results, bucket, object_key, aws_credentials, aws_config):
+def _upload_json_to_s3(
+    raw_results: list[dict[str, Any]],
+    bucket: str,
+    object_key: str,
+    aws_credentials: AwsCredentials,
+    aws_config: AwsConfig,
+) -> None:
     """Upload a JSON file to an Amazon S3 bucket."""
     results = []
     for raw_result in raw_results:
@@ -171,19 +203,25 @@ def upload_json_to_s3(raw_results, bucket, object_key, aws_credentials, aws_conf
             else:  # Single-value field
                 result[field_name] = raw_result[field_name]
         results.append(result)
-    upload_to_s3(
+    _upload_to_s3(
         json.dumps(results).encode(), bucket, object_key, aws_credentials, aws_config
     )
 
 
-def upload_to_s3(results, bucket, object_key, aws_credentials, aws_config):
+def _upload_to_s3(
+    results: bytes | io.BytesIO,
+    bucket: str,
+    object_key: str,
+    aws_credentials: AwsCredentials,
+    aws_config: AwsConfig,
+) -> None:
     """Upload a file-like object to an Amazon S3 bucket."""
     s3 = boto3.resource("s3", use_ssl=True, **aws_credentials, **aws_config)
     s3_object = s3.Object(bucket, object_key)
     s3_object.put(Body=results)
 
 
-def process_event(helper, *args, **kwargs):  # noqa: F841
+def process_event(helper: AlertActionWorkeramazon_s3_upload, *args, **kwargs) -> int:  # noqa: F841
     """
     Do not remove: sample code generator
     [sample_code_macro:start]
@@ -191,13 +229,13 @@ def process_event(helper, *args, **kwargs):  # noqa: F841
     """
     helper.log_info("Alert action amazon_s3_upload started.")
 
-    aws_config = get_proxies(helper)
+    aws_config = _get_proxies(helper)
     aws_region = helper.get_param("aws_region")
     if aws_region:
         helper.log_debug(f"Found region '{aws_region}'.")
         aws_config["region_name"] = aws_region
 
-    aws_credentials = get_credentials(helper, aws_config)
+    aws_credentials = _get_credentials(helper, aws_config)
     if aws_credentials is None:
         return 11
 
@@ -224,9 +262,9 @@ def process_event(helper, *args, **kwargs):  # noqa: F841
 
     try:
         if object_key.endswith(".csv") or object_key.endswith(".csv.gz"):
-            upload_csv_to_s3(results, bucket, object_key, aws_credentials, aws_config)
+            _upload_csv_to_s3(results, bucket, object_key, aws_credentials, aws_config)
         elif object_key.endswith(".json"):
-            upload_json_to_s3(results, bucket, object_key, aws_credentials, aws_config)
+            _upload_json_to_s3(results, bucket, object_key, aws_credentials, aws_config)
         else:
             helper.log_error("Unsupported file extension.")
             return 3
