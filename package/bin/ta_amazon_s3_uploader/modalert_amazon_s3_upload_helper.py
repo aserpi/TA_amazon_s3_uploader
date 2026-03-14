@@ -34,27 +34,12 @@ class AwsCredentials(TypedDict, total=False):
     aws_session_token: str | None
 
 
-def _get_account_credentials(
-    helper: AlertActionWorkeramazon_s3_upload, aws_account: str, aws_config: AwsConfig
+def _assume_role(
+    helper: AlertActionWorkeramazon_s3_upload,
+    aws_credentials: AwsCredentials,
+    aws_config: AwsConfig,
 ) -> AwsCredentials | None:
-    """Get AWS credentials specified by the user."""
-    credentials = helper.get_user_credential_by_account_id(aws_account)
-    if not credentials:
-        helper.log_error("AWS account not found in configuration file.")
-        return None
-    aws_credentials = AwsCredentials(
-        aws_access_key_id=credentials.get("aws_key_id"),
-        aws_secret_access_key=credentials.get("aws_secret"),
-        aws_session_token=credentials.get("aws_session_token"),
-    )
-
-    if not aws_credentials["aws_access_key_id"]:
-        helper.log_error("Missing AWS access key ID.")
-        return None
-    if not aws_credentials["aws_secret_access_key"]:
-        helper.log_error("Missing AWS secret access key.")
-        return None
-
+    """Assume the configured AWS role, if any."""
     aws_role = helper.get_param("role")
     if not aws_role:
         return aws_credentials
@@ -90,6 +75,31 @@ def _get_account_credentials(
     )
 
 
+def _get_account_credentials(
+    helper: AlertActionWorkeramazon_s3_upload,
+    aws_account: str,
+) -> AwsCredentials | None:
+    """Get AWS credentials specified by the user."""
+    credentials = helper.get_user_credential_by_account_id(aws_account)
+    if not credentials:
+        helper.log_error("AWS account not found in configuration file.")
+        return None
+    aws_credentials = AwsCredentials(
+        aws_access_key_id=credentials.get("aws_key_id"),
+        aws_secret_access_key=credentials.get("aws_secret"),
+        aws_session_token=credentials.get("aws_session_token"),
+    )
+
+    if not aws_credentials["aws_access_key_id"]:
+        helper.log_error("Missing AWS access key ID.")
+        return None
+    if not aws_credentials["aws_secret_access_key"]:
+        helper.log_error("Missing AWS secret access key.")
+        return None
+
+    return aws_credentials
+
+
 def _get_credentials(
     helper: AlertActionWorkeramazon_s3_upload,
     aws_config: AwsConfig,
@@ -100,13 +110,18 @@ def _get_credentials(
 
     if aws_account == "Boto3":
         try:
-            boto3.client("sts").get_caller_identity()
+            boto3.client("sts", **aws_config).get_caller_identity()
         except botocore.exceptions.NoCredentialsError:
             helper.log_error("Boto3 cannot find any credentials")
             return None
-        return AwsCredentials()
+        aws_credentials = AwsCredentials()
+    else:
+        account_credentials = _get_account_credentials(helper, aws_account)
+        if account_credentials is None:
+            return None
+        aws_credentials = account_credentials
 
-    return _get_account_credentials(helper, aws_account, aws_config)
+    return _assume_role(helper, aws_credentials, aws_config)
 
 
 def _get_proxies(helper: AlertActionWorkeramazon_s3_upload) -> AwsConfig:
