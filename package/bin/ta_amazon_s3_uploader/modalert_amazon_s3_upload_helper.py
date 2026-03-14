@@ -6,7 +6,7 @@ import io
 import json
 import re
 from datetime import datetime, timezone
-from typing import Any, TypedDict
+from typing import Any, Optional, TypedDict, Union
 
 import boto3
 import botocore.config
@@ -30,14 +30,14 @@ class AwsConfig(TypedDict, total=False):
 class AwsCredentials(TypedDict, total=False):
     aws_access_key_id: str
     aws_secret_access_key: str
-    aws_session_token: str | None
+    aws_session_token: Optional[str]
 
 
 def _assume_role(
     helper: AlertActionWorkeramazon_s3_upload,
     aws_credentials: AwsCredentials,
     aws_config: AwsConfig,
-) -> AwsCredentials | None:
+) -> Optional[AwsCredentials]:
     """Assume the configured AWS role, if any."""
     aws_role = helper.get_param("role")
     if not aws_role:
@@ -77,7 +77,7 @@ def _assume_role(
 def _get_account_credentials(
     helper: AlertActionWorkeramazon_s3_upload,
     aws_account: str,
-) -> AwsCredentials | None:
+) -> Optional[AwsCredentials]:
     """Get AWS credentials specified by the user."""
     credentials = helper.get_user_credential_by_account_id(aws_account)
     if not credentials:
@@ -102,7 +102,7 @@ def _get_account_credentials(
 def _get_credentials(
     helper: AlertActionWorkeramazon_s3_upload,
     aws_config: AwsConfig,
-) -> AwsCredentials | None:
+) -> Optional[AwsCredentials]:
     """Get AWS credentials."""
     aws_account = helper.get_param("account")
     helper.log_debug(f"Found AWS account '{aws_account}'")
@@ -216,7 +216,7 @@ def _upload_json_to_s3(
 
 
 def _upload_to_s3(
-    results: bytes | io.BytesIO,
+    results: Union[bytes, io.BytesIO],
     bucket: str,
     object_key: str,
     aws_credentials: AwsCredentials,
