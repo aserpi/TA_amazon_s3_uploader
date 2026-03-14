@@ -1,10 +1,10 @@
 {
     "meta": {
-        "_uccVersion": "5.55.0",
         "displayName": "Amazon S3 Uploader for Splunk",
+        "hideUCCVersion": true,
         "name": "TA_amazon_s3_uploader",
         "restRoot": "TA_amazon_s3_uploader",
-        "schemaVersion": "0.0.9",
+        "schemaVersion": "0.0.10",
         "version": "2.0.1"
     },
     "alerts": [
@@ -133,9 +133,6 @@
                             ]
                         }
                     ],
-                    "hook": {
-                        "src": "aws_account_hook"
-                    },
                     "name": "account",
                     "table": {
                         "actions": [
@@ -192,9 +189,6 @@
                             ]
                         }
                     ],
-                    "hook": {
-                        "src": "aws_role_hook"
-                    },
                     "name": "role",
                     "table": {
                         "actions": [
@@ -216,97 +210,34 @@
                     "title": "IAM Role"
                 },
                 {
-                    "entity": [
-                        {
-                            "field": "proxy_enabled",
-                            "label": "Enable",
-                            "type": "checkbox"
-                        },
-                        {
-                            "defaultValue": "https",
-                            "field": "proxy_type",
-                            "label": "Proxy type",
-                            "options": {
-                                "autoCompleteFields": [
-                                    {
-                                        "label": "HTTP",
-                                        "value": "http"
-                                    },
-                                    {
-                                        "label": "HTTPS",
-                                        "value": "https"
-                                    }
-                                ],
-                                "disableSearch": true
-                            },
-                            "type": "singleSelect"
-                        },
-                        {
-                            "field": "proxy_url",
-                            "label": "Host",
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "errorMsg": "Max host length is 4096",
-                                    "maxLength": 4096,
-                                    "minLength": 0,
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "proxy_port",
-                            "label": "Port",
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "range": [
-                                        1,
-                                        65535
-                                    ],
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        {
-                            "field": "proxy_username",
-                            "label": "Username",
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "errorMsg": "Max length of username is 50",
-                                    "maxLength": 50,
-                                    "minLength": 0,
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        {
-                            "encrypted": true,
-                            "field": "proxy_password",
-                            "label": "Password",
-                            "type": "text",
-                            "validators": [
-                                {
-                                    "errorMsg": "Max length of password is 8192",
-                                    "maxLength": 8192,
-                                    "minLength": 0,
-                                    "type": "string"
-                                }
-                            ]
-                        },
-                        {
-                            "defaultValue": false,
-                            "field": "disable_verify_ssl",
-                            "label": "Disable TLS verification",
-                            "type": "checkbox"
-                        }
-                    ],
-                    "name": "proxy",
-                    "options": {
-                        "saveValidator": "function(formData) { if(!formData.proxy_enabled || formData.proxy_enabled === '0') {return true; } if(!formData.proxy_url) { return 'Proxy host cannot be empty'; } if(!formData.proxy_port) { return 'Proxy port cannot be empty'; } return true; }"
+                    "dns_resolution": {
+                        "field": "proxy_rdns",
+                        "label": "Disable TLS verification",
+                        "type": "checkbox"
                     },
-                    "title": "Proxy"
+                    "password": true,
+                    "proxy_type": {
+                        "defaultValue": "http",
+                        "field": "proxy_type",
+                        "label": "Proxy Type",
+                        "options": {
+                            "autoCompleteFields": [
+                                {
+                                    "label": "http",
+                                    "value": "http"
+                                },
+                                {
+                                    "label": "https",
+                                    "value": "https"
+                                }
+                            ],
+                            "disableSearch": true
+                        },
+                        "required": false,
+                        "type": "singleSelect"
+                    },
+                    "type": "proxyTab",
+                    "username": true
                 },
                 {
                     "type": "loggingTab"
