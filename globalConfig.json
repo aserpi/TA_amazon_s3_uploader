@@ -215,6 +215,25 @@
                         "label": "Disable TLS verification",
                         "type": "checkbox"
                     },
+                    "host": {
+                        "field": "proxy_url",
+                        "label": "Host",
+                        "required": true,
+                        "type": "text",
+                        "validators": [
+                            {
+                                "errorMsg": "Max host length is 4096",
+                                "maxLength": 4096,
+                                "minLength": 1,
+                                "type": "string"
+                            },
+                            {
+                                "errorMsg": "Proxy Host should be an FQDN, IPv4 or IPv6 address",
+                                "pattern": "^[A-Za-z0-9.:]+$",
+                                "type": "regex"
+                            }
+                        ]
+                    },
                     "password": true,
                     "proxy_type": {
                         "defaultValue": "http",

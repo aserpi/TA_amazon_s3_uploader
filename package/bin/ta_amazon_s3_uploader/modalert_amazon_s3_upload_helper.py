@@ -24,7 +24,6 @@ MV_VALUE_REGEX = re.compile(r"\$(?P<item>(?:\$\$|[^$])*)\$(?:;|$)")
 
 class AwsConfig(TypedDict, total=False):
     config: botocore.config.Config
-    region_name: str
     verify: bool
 
 
@@ -128,25 +127,18 @@ def _get_proxies(helper: AlertActionWorkeramazon_s3_upload) -> AwsConfig:
     """Get proxy settings."""
     proxy = helper.get_proxy()
     if not proxy:
-        return AwsConfig()
+        return AwsConfig(config=botocore.config.Config())
 
+    proxy_url = f"{proxy['proxy_url']}:{proxy['proxy_port']}"
     if proxy["proxy_username"] and proxy["proxy_password"]:
-        proxy_url = (
-            f"{proxy['proxy_type']}://"
-            f"{proxy['proxy_username']}:{proxy['proxy_password']}@"
-            f"{proxy['proxy_url']}:{proxy['proxy_port']}"
-        )
-    else:
-        proxy_url = (
-            f"{proxy['proxy_type']}://{proxy['proxy_url']}:{proxy['proxy_port']}"
-        )
+        proxy_url = f"{proxy['proxy_username']}:{proxy['proxy_password']}@{proxy_url}"
     proxies = {proxy["proxy_type"]: proxy_url}
     helper.log_debug(f"Found proxies: {proxies}.")
 
     cfm = conf_manager.ConfManager(helper.session_key, helper.ta_name)
     try:
         proxy_conf = cfm.get_conf("ta_amazon_s3_uploader_settings")
-        verify_ssl = utils.is_false(proxy_conf.get("proxy")["disable_verify_ssl"])
+        verify_ssl = utils.is_false(proxy_conf.get("proxy")["proxy_rdns"])
     except (
         KeyError,
         conf_manager.ConfManagerException,
@@ -155,7 +147,7 @@ def _get_proxies(helper: AlertActionWorkeramazon_s3_upload) -> AwsConfig:
         verify_ssl = True
     helper.log_debug(f"Found disable_verify_ssl '{verify_ssl}'.")
 
-    return AwsConfig(config=botocore.config.Config(proxies), verify=verify_ssl)
+    return AwsConfig(config=botocore.config.Config(proxies=proxies), verify=verify_ssl)
 
 
 def _upload_csv_to_s3(
@@ -248,7 +240,9 @@ def process_event(helper: AlertActionWorkeramazon_s3_upload, *args, **kwargs) ->
     aws_region = helper.get_param("aws_region")
     if aws_region:
         helper.log_debug(f"Found region '{aws_region}'.")
-        aws_config["region_name"] = aws_region
+        aws_config["config"] = aws_config["config"].merge(
+            botocore.config.Config(region_name=aws_region)
+        )
 
     aws_credentials = _get_credentials(helper, aws_config)
     if aws_credentials is None:
