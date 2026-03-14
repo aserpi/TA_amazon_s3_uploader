@@ -1,13 +1,43 @@
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v5.0.0
-  hooks:
-    - id: check-json
-    - id: check-yaml
-    - id: end-of-file-fixer
-    - id: pretty-format-json
-      args: ['--autofix', "--indent=4", '--top-keys=meta']
-    - id: requirements-txt-fixer
-    - id: trailing-whitespace
-      args:
-        - "--markdown-linebreak-ext=md"
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: [--fix=auto]
+      - id: pretty-format-json
+        args: [--autofix, --indent=4, --top-keys=meta]
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.5
+    hooks:
+      - id: ruff-check
+        args: [--fix, --no-unsafe-fixes]
+      - id: ruff-format
+      - id: ruff-check
+        args: [--fix, --select, I]
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: v2.15
+    hooks:
+      - id: vulture
+        args: ["--min-confidence", "90"]
+        pass_filenames: true
+        types: [python]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.2
+    hooks:
+      - id: pyupgrade
+        args: [--py313-plus]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.17.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
