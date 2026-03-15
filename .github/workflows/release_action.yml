@@ -2,7 +2,8 @@ name: Release
 
 on:
   push:
-    tags: v*.*.*
+    tags:
+      - v*.*.*
 
 env:
   app_id: ${{ github.event.repository.name }}
@@ -18,18 +19,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
-          python-version: "3.9"
+          python-version: "3.13"
       - name: Install dependencies
         run: |
           python -m pip install --no-cache-dir --upgrade pip
           python -m pip install --no-cache-dir wheel
           if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
       - name: Extract version
-        uses: actions-ecosystem/action-regex-match@v2
+        uses: actions-ecosystem/action-regex-match@9e6c4fb3d5e898f505be7a1fb6e7b0a278f6665b
         id: get-version
         with:
           regex: '^v((?:\d+)\.(?:\d+)\.(?:\d+)(-[0-9A-Za-z-]+)?)(\+[0-9A-Za-z-]+)?$'
@@ -61,7 +62,7 @@ jobs:
           ' >> $GITHUB_ENV
           echo 'CHANGELOG_EOF' >> $GITHUB_ENV
       - name: Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b
         with:
           artifacts: ${{ env.app_id }}-${{ steps.get-version.outputs.group1 }}.tar.gz
           body: ${{ env.CHANGELOG }}
