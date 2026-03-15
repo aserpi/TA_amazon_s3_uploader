@@ -166,9 +166,10 @@ def _upload_csv_to_s3(
             result[field_name] = raw_result[field_name]  # Save the raw value
         results.append(result)
     with io.StringIO() as csv_buffer:
-        writer = csv.DictWriter(csv_buffer, fieldnames=results[0].keys())
-        writer.writeheader()
-        writer.writerows(results)
+        if results:
+            writer = csv.DictWriter(csv_buffer, fieldnames=results[0].keys())
+            writer.writeheader()
+            writer.writerows(results)
         if object_key.endswith(".csv.gz"):
             with io.BytesIO() as gzip_buffer:
                 with gzip.open(gzip_buffer, mode="w") as gzip_file:
@@ -265,7 +266,7 @@ def process_event(helper: AlertActionWorkeramazon_s3_upload, *args, **kwargs) ->
     try:
         results = helper.get_events()
     except SystemExit:
-        if not helper.get_param("upload_empty"):
+        if utils.is_false(helper.get_param("upload_empty")):
             return 0
         results = []
 

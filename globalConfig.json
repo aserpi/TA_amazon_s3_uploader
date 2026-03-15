@@ -56,7 +56,7 @@
                     "type": "checkbox"
                 },
                 {
-                    "defaultValue": true,
+                    "defaultValue": 0,
                     "field": "upload_empty",
                     "label": "Allow empty results",
                     "required": false,
