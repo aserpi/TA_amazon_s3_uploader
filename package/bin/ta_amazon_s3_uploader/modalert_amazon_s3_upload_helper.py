@@ -5,15 +5,16 @@ import gzip
 import io
 import json
 import re
+import zlib
 from datetime import datetime, timezone
-from typing import Any, Optional, TypedDict, Union
+from typing import Any, TypedDict
 
 import boto3
 import botocore.config
 import botocore.exceptions
 from solnlib import conf_manager, utils
 
-from amazon_s3_upload import AlertActionWorkeramazon_s3_upload  # noqa
+from amazon_s3_upload import AlertActionWorkeramazon_s3_upload
 
 
 # Each non-meta field '<FIELD>' has a corresponding entry
@@ -30,14 +31,14 @@ class AwsConfig(TypedDict, total=False):
 class AwsCredentials(TypedDict, total=False):
     aws_access_key_id: str
     aws_secret_access_key: str
-    aws_session_token: Optional[str]
+    aws_session_token: str | None
 
 
 def _assume_role(
     helper: AlertActionWorkeramazon_s3_upload,
     aws_credentials: AwsCredentials,
     aws_config: AwsConfig,
-) -> Optional[AwsCredentials]:
+) -> AwsCredentials | None:
     """Assume the configured AWS role, if any."""
     aws_role = helper.get_param("role")
     if not aws_role:
@@ -74,10 +75,47 @@ def _assume_role(
     )
 
 
+def _build_csv(raw_results: list[dict[str, Any]]) -> bytes:
+    """Build a CSV file from search results."""
+    results = []
+    for raw_result in raw_results:
+        result = {}
+        for field_name in (n for n in raw_result if n.startswith("__mv_")):
+            field_name = field_name[5:]
+            result[field_name] = raw_result[field_name]  # Save the raw value
+        results.append(result)
+    with io.StringIO() as csv_buffer:
+        if results:
+            writer = csv.DictWriter(csv_buffer, fieldnames=results[0].keys())
+            writer.writeheader()
+            writer.writerows(results)
+        return csv_buffer.getvalue().encode()
+
+
+def _build_json(raw_results: list[dict[str, Any]]) -> bytes:
+    """Build a JSON file from search results."""
+    results = []
+    for raw_result in raw_results:
+        result = {}
+        mv_fields = ((n, v) for n, v in raw_result.items() if n.startswith("__mv_"))
+        for field_name, field_values in mv_fields:
+            field_name = field_name[5:]
+            if field_values:  # Multivalue field
+                mv = [
+                    match.replace("$$", "$")
+                    for match in MV_VALUE_REGEX.findall(field_values)
+                ]
+                result[field_name] = mv
+            else:  # Single-value field
+                result[field_name] = raw_result[field_name]
+        results.append(result)
+    return json.dumps(results).encode()
+
+
 def _get_account_credentials(
     helper: AlertActionWorkeramazon_s3_upload,
     aws_account: str,
-) -> Optional[AwsCredentials]:
+) -> AwsCredentials | None:
     """Get AWS credentials specified by the user."""
     credentials = helper.get_user_credential_by_account_id(aws_account)
     if not credentials:
@@ -102,7 +140,7 @@ def _get_account_credentials(
 def _get_credentials(
     helper: AlertActionWorkeramazon_s3_upload,
     aws_config: AwsConfig,
-) -> Optional[AwsCredentials]:
+) -> AwsCredentials | None:
     """Get AWS credentials."""
     aws_account = helper.get_param("account")
     helper.log_debug(f"Found AWS account '{aws_account}'")
@@ -150,86 +188,20 @@ def _get_proxies(helper: AlertActionWorkeramazon_s3_upload) -> AwsConfig:
     return AwsConfig(config=botocore.config.Config(proxies=proxies), verify=verify_ssl)
 
 
-def _upload_csv_to_s3(
-    raw_results: list[dict[str, Any]],
-    bucket: str,
-    object_key: str,
-    aws_credentials: AwsCredentials,
-    aws_config: AwsConfig,
-) -> None:
-    """Upload a (potentially compressed) CSV file to an Amazon S3 bucket."""
-    results = []
-    for raw_result in raw_results:
-        result = {}
-        for field_name in (n for n in raw_result if n.startswith("__mv_")):
-            field_name = field_name[5:]
-            result[field_name] = raw_result[field_name]  # Save the raw value
-        results.append(result)
-    with io.StringIO() as csv_buffer:
-        if results:
-            writer = csv.DictWriter(csv_buffer, fieldnames=results[0].keys())
-            writer.writeheader()
-            writer.writerows(results)
-        if object_key.endswith(".csv.gz"):
-            with io.BytesIO() as gzip_buffer:
-                with gzip.open(gzip_buffer, mode="w") as gzip_file:
-                    gzip_file.write(csv_buffer.getvalue().encode())
-                gzip_buffer.seek(0)  # Return to the start of the buffer
-                _upload_to_s3(
-                    gzip_buffer, bucket, object_key, aws_credentials, aws_config
-                )
-        else:
-            _upload_to_s3(
-                csv_buffer.getvalue().encode(),
-                bucket,
-                object_key,
-                aws_credentials,
-                aws_config,
-            )
-
-
-def _upload_json_to_s3(
-    raw_results: list[dict[str, Any]],
-    bucket: str,
-    object_key: str,
-    aws_credentials: AwsCredentials,
-    aws_config: AwsConfig,
-) -> None:
-    """Upload a JSON file to an Amazon S3 bucket."""
-    results = []
-    for raw_result in raw_results:
-        result = {}
-        mv_fields = ((n, v) for n, v in raw_result.items() if n.startswith("__mv_"))
-        for field_name, field_values in mv_fields:
-            field_name = field_name[5:]
-            if field_values:  # Multivalue field
-                mv = [
-                    match.replace("$$", "$")
-                    for match in MV_VALUE_REGEX.findall(field_values)
-                ]
-                result[field_name] = mv
-            else:  # Single-value field
-                result[field_name] = raw_result[field_name]
-        results.append(result)
-    _upload_to_s3(
-        json.dumps(results).encode(), bucket, object_key, aws_credentials, aws_config
-    )
-
-
 def _upload_to_s3(
-    results: Union[bytes, io.BytesIO],
+    data: bytes,
     bucket: str,
     object_key: str,
     aws_credentials: AwsCredentials,
     aws_config: AwsConfig,
 ) -> None:
-    """Upload a file-like object to an Amazon S3 bucket."""
+    """Upload data to an Amazon S3 bucket."""
     s3 = boto3.resource("s3", use_ssl=True, **aws_credentials, **aws_config)
     s3_object = s3.Object(bucket, object_key)
-    s3_object.put(Body=results)
+    s3_object.put(Body=data)
 
 
-def process_event(helper: AlertActionWorkeramazon_s3_upload, *args, **kwargs) -> int:  # noqa: F841
+def process_event(helper: AlertActionWorkeramazon_s3_upload, *_args, **_kwargs) -> int:
     """
     Do not remove: sample code generator
     [sample_code_macro:start]
@@ -271,13 +243,30 @@ def process_event(helper: AlertActionWorkeramazon_s3_upload, *args, **kwargs) ->
         results = []
 
     try:
-        if object_key.endswith(".csv") or object_key.endswith(".csv.gz"):
-            _upload_csv_to_s3(results, bucket, object_key, aws_credentials, aws_config)
-        elif object_key.endswith(".json"):
-            _upload_json_to_s3(results, bucket, object_key, aws_credentials, aws_config)
+        if object_key.endswith((".csv", ".csv.gz")):
+            data = _build_csv(results)
+        elif object_key.endswith((".json", ".json.gz")):
+            data = _build_json(results)
         else:
             helper.log_error("Unsupported file extension.")
             return 3
+    except (csv.Error, TypeError, ValueError) as e:
+        helper.log_error(f"Failed to build search results: {e}")
+        return 4
+    helper.log_debug("Successfully built search results.")
+
+    try:
+        if object_key.endswith(".gz"):
+            data = gzip.compress(data)
+            helper.log_debug("Compressed search results.")
+        else:
+            helper.log_debug("No need to compress search results.")
+    except (TypeError, zlib.error) as e:
+        helper.log_error(f"Failed to compress search results: {e}")
+        return 6
+
+    try:
+        _upload_to_s3(data, bucket, object_key, aws_credentials, aws_config)
     except botocore.exceptions.ClientError as e:
         helper.log_error(f"Failed to upload to S3: {e.response['Error']['Message']}")
         return 5

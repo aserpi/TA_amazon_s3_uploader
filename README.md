@@ -12,7 +12,7 @@ This Splunk add-on delivers an alert action that uploads search results to an Am
 Object keys uniquely identify objects in an Amazon S3 bucket. Although all UTF-8 characters are allowed, some should be avoided. Forward slashes can be used to mimic a directory structure. Please refer to the [official documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html) for additional information.
 
 ### Supported file types
-The output format is inferred from the object key extension. Only CSV (`.csv`), gzip-compressed CSV (`.csv.gzip`), and JSON (`.json`) files are supported.
+The output format is inferred from the object key extension. Only uncompressed and gzip-compressed CSV and JSON files (`.csv`, `.csv.gz`, `.json`, `.json.gz`) are supported.
 
 Multivalue fields are treated differently based on the output format: in JSON they are stored as an array, while in CSV they are in a single entry, separated by their delimiter (by default a newline). For example, the search
 ```
