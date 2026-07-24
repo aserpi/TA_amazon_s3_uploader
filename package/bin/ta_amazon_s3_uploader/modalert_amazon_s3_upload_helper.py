@@ -143,13 +143,13 @@ def _get_credentials(
 ) -> AwsCredentials | None:
     """Get AWS credentials."""
     aws_account = helper.get_param("account")
-    helper.log_debug(f"Found AWS account '{aws_account}'")
+    helper.log_debug(f"Found AWS account '{aws_account}'.")
 
     if aws_account == "Boto3":
         try:
             boto3.client("sts", **aws_config).get_caller_identity()
         except botocore.exceptions.NoCredentialsError:
-            helper.log_error("Boto3 cannot find any credentials")
+            helper.log_error("Boto3 cannot find any credentials.")
             return None
         aws_credentials = AwsCredentials()
     else:
