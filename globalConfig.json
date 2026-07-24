@@ -6,7 +6,6 @@
         "restRoot": "TA_amazon_s3_uploader",
         "schemaVersion": "0.0.10",
         "supportedPythonVersion": [
-            "3.9",
             "3.13"
         ],
         "version": "2.1.1"
