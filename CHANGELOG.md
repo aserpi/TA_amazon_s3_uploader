@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.0 - 2026-09-26
+
+Add support for:
+- Compressed JSON files
+- Compressed and uncompressed JSON Lines files.
+
+Add an option to cast numbers and nulls when creating JSON and JSON Lines files.
+
+BREAKING CHANGE: Drop support for Splunk<10.2.0.
+Amazon dropped support for Python 3.9 in their official AWS package.
+
 ## 2.1.1 - 2026-04-25
 
 Update dependencies.
