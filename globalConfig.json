@@ -22,7 +22,7 @@
                 },
                 {
                     "field": "object_key",
-                    "help": "Only .csv, .csv.gz, .json, and .json.gz files are supported.\nCan encode a timestamp.",
+                    "help": "Only .csv, .csv.gz, .json, .json.gz, .jsonl, and .jsonl.gz files are supported.\nCan encode a timestamp.",
                     "label": "Object key",
                     "required": true,
                     "type": "text"

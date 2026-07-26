@@ -94,8 +94,12 @@ def _build_csv(raw_results: list[dict[str, Any]]) -> bytes:
         return csv_buffer.getvalue().encode()
 
 
-def _build_json(raw_results: list[dict[str, Any]], cast_types: bool = False) -> bytes:
-    """Build a JSON file from search results."""
+def _build_json(
+    raw_results: list[dict[str, Any]],
+    cast_types: bool = False,
+    lines: bool = False,
+) -> bytes:
+    """Build a JSON or JSON Lines file from search results."""
     results = []
     for raw_result in raw_results:
         result = {}
@@ -115,6 +119,8 @@ def _build_json(raw_results: list[dict[str, Any]], cast_types: bool = False) -> 
     if cast_types:
         _cast_results(results)
 
+    if lines:
+        return "\n".join(json.dumps(row) for row in results).encode()
     return json.dumps(results).encode()
 
 
@@ -306,9 +312,10 @@ def process_event(helper: AlertActionWorkeramazon_s3_upload, *_args, **_kwargs) 
     try:
         if object_key.endswith((".csv", ".csv.gz")):
             data = _build_csv(results)
-        elif object_key.endswith((".json", ".json.gz")):
+        elif object_key.endswith((".json", ".json.gz", ".jsonl", ".jsonl.gz")):
             cast_types = utils.is_true(helper.get_param("cast_types"))
-            data = _build_json(results, cast_types=cast_types)
+            jsonl = object_key.endswith((".jsonl", ".jsonl.gz"))
+            data = _build_json(results, cast_types=cast_types, lines=jsonl)
         else:
             helper.log_error("Unsupported file extension.")
             return 3

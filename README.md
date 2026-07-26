@@ -14,9 +14,9 @@ Object keys uniquely identify objects in an Amazon S3 bucket. Although all UTF-8
 
 ### Supported file types
 
-The output format is inferred from the object key extension. Only uncompressed and gzip-compressed CSV and JSON files (`.csv`, `.csv.gz`, `.json`, `.json.gz`) are supported.
+The output format is inferred from the object key extension. Only uncompressed and gzip-compressed CSV, JSON, and JSON Lines files (`.csv`, `.csv.gz`, `.json`, `.json.gz`, `.jsonl`, `.jsonl.gz`) are supported.
 
-Multivalue fields are treated differently based on the output format: in JSON they are stored as an array, while in CSV they are in a single entry, separated by their delimiter (by default a newline). For example, the search
+Multivalue fields are treated differently based on the output format: in JSON and JSON Lines they are stored as an array, while in CSV they are in a single entry, separated by their delimiter (by default a newline). For example, the search
 ```spl
 | makeresults
 | eval test=split("value1,value2", ",")
@@ -41,7 +41,7 @@ test
 "value1,value2"
 ```
 
-Both searches generate the same JSON
+Both searches generate the same JSON (and JSON Lines)
 
 ```json
 {"test": ["value1", "value2"]}
@@ -54,7 +54,7 @@ Format codes are extremely similar to Splunk's, please refer to the [official do
 
 ### Type casting
 
-JSON files support opt-in type casting for values that comply with the JSON standard.
+JSON and JSON Lines files support opt-in type casting for values that comply with the JSON standard
 When enabled, each field is analyzed across all results to infer its type:
 
 1. If every non-empty value in the field can be parsed as a Python `int`, the field is cast to an integer number.
