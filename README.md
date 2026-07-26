@@ -17,31 +17,77 @@ Object keys uniquely identify objects in an Amazon S3 bucket. Although all UTF-8
 The output format is inferred from the object key extension. Only uncompressed and gzip-compressed CSV and JSON files (`.csv`, `.csv.gz`, `.json`, `.json.gz`) are supported.
 
 Multivalue fields are treated differently based on the output format: in JSON they are stored as an array, while in CSV they are in a single entry, separated by their delimiter (by default a newline). For example, the search
-```
-| makeresults | eval test=split("value1,value2", ",") | fields - _*
+```spl
+| makeresults
+| eval test=split("value1,value2", ",")
+| fields - _*
 ```
 produces the CSV
-```
+```csv
 test
 "value1
 value2"
 ```
 whereas the search
-```
-| makeresults | eval test="value1,value2" | makemv delim="," test | fields - _*
+```spl
+| makeresults
+| eval test="value1,value2"
+| makemv delim="," test
+| fields - _*
 ```
 produces the CSV
-```
+```csv
 test
 "value1,value2"
 ```
 
-Both searches generate the same JSON `{"test": ["value1", "value2"]}`.
+Both searches generate the same JSON
+
+```json
+{"test": ["value1", "value2"]}
+```
 
 ### Timestamp
 
 The user-provided object key is passed to Python's `datetime.strftime()` function, which encodes the time the search started.
 Format codes are extremely similar to Splunk's, please refer to the [official documentation](https://docs.python.org/3.7/library/datetime.html#strftime-strptime-behavior).
+
+### Type casting
+
+JSON files support opt-in type casting for values that comply with the JSON standard.
+When enabled, each field is analyzed across all results to infer its type:
+
+1. If every non-empty value in the field can be parsed as a Python `int`, the field is cast to an integer number.
+2. Otherwise, if every non-empty value can be parsed as a finite Python `float` (i.e., neither infinity nor NaN), the field is cast to a decimal fraction.
+3. Otherwise, the field is kept as a string.
+
+Empty strings represent missing values in Splunk and are converted to `null`.
+
+The parsing of numbers is delegated to the Python functions `float()` and `int()`, which can parse strings that are not normally perceived as numbers.
+For example, the search
+
+```
+| makeresults
+| eval i1=11,
+    i2=" 1_2 ",
+    f=".5",
+    mv=split("1,2,text", ","),
+    "n": "",
+    s="abc"
+| fields - _*
+```
+
+produces without type casting
+
+```json
+[{"i1": "11", "i2": " 1_2 ", "f": ".5", "s": "abc", "mv": ["1", "2", "text"], "n": ""}]
+```
+
+and with type casting
+
+```json
+[{"i1": 11, "i2": 12, "f": 0.5, "s": "abc", "mv": ["1", "2", "text"], "n": null}]
+```
 
 
 ## Configuration

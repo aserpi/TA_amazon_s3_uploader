@@ -64,6 +64,13 @@
                     "label": "Allow empty results",
                     "required": false,
                     "type": "checkbox"
+                },
+                {
+                    "defaultValue": 0,
+                    "field": "cast_types",
+                    "label": "Automatically convert JSON values",
+                    "required": false,
+                    "type": "checkbox"
                 }
             ],
             "label": "Upload to Amazon S3",

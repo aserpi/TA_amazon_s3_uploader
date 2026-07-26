@@ -4,8 +4,10 @@ import csv
 import gzip
 import io
 import json
+import math
 import re
 import zlib
+from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Any, TypedDict
 
@@ -92,7 +94,7 @@ def _build_csv(raw_results: list[dict[str, Any]]) -> bytes:
         return csv_buffer.getvalue().encode()
 
 
-def _build_json(raw_results: list[dict[str, Any]]) -> bytes:
+def _build_json(raw_results: list[dict[str, Any]], cast_types: bool = False) -> bytes:
     """Build a JSON file from search results."""
     results = []
     for raw_result in raw_results:
@@ -109,7 +111,55 @@ def _build_json(raw_results: list[dict[str, Any]]) -> bytes:
             else:  # Single-value field
                 result[field_name] = raw_result[field_name]
         results.append(result)
+
+    if cast_types:
+        _cast_results(results)
+
     return json.dumps(results).encode()
+
+
+def _cast_results(results: list[dict[str, Any]]) -> None:
+    """Cast JSON search results to appropriate data types in-place."""
+    if not results:
+        return
+
+    fields: set[str] = set()
+    for row in results:
+        fields.update(row.keys())
+
+    for field in fields:
+        is_float = True
+        is_int = True
+        for row in results:
+            if (raw_value := row.get(field)) is None:
+                continue
+            values = raw_value if isinstance(raw_value, list) else [raw_value]
+            for value in values:
+                if value == "":
+                    continue
+                if is_float:
+                    try:
+                        f = float(value)
+                        if math.isinf(f) or math.isnan(f):
+                            is_float = False
+                    except ValueError:
+                        is_float = False
+                if is_int:
+                    try:
+                        int(value)
+                    except ValueError:
+                        is_int = False
+            if not is_float and not is_int:
+                break
+
+        cast_func = _get_cast_func(is_int, is_float)
+        for row in results:
+            if (raw_value := row.get(field)) is None:
+                continue
+            if isinstance(raw_value, list):
+                row[field] = [cast_func(v) for v in raw_value]
+            else:
+                row[field] = cast_func(raw_value)
 
 
 def _get_account_credentials(
@@ -135,6 +185,17 @@ def _get_account_credentials(
         return None
 
     return aws_credentials
+
+
+def _get_cast_func(
+    is_int: bool, is_float: bool
+) -> Callable[[Any], int | float | str | None]:
+    """Return a function that casts a value to the inferred data type."""
+    if is_int:
+        return lambda v: None if v == "" else int(v)
+    if is_float:
+        return lambda v: None if v == "" else float(v)
+    return lambda v: None if v == "" else str(v)
 
 
 def _get_credentials(
@@ -246,7 +307,8 @@ def process_event(helper: AlertActionWorkeramazon_s3_upload, *_args, **_kwargs) 
         if object_key.endswith((".csv", ".csv.gz")):
             data = _build_csv(results)
         elif object_key.endswith((".json", ".json.gz")):
-            data = _build_json(results)
+            cast_types = utils.is_true(helper.get_param("cast_types"))
+            data = _build_json(results, cast_types=cast_types)
         else:
             helper.log_error("Unsupported file extension.")
             return 3
